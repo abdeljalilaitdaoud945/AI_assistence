@@ -170,7 +170,7 @@ def glass_icon(icon):
 
 def section_title(text):
     return ft.Container(
-        padding=ft.padding.only(left=22, top=8, bottom=8),
+        padding=20,
         content=ft.Text(
             text,
             size=22,

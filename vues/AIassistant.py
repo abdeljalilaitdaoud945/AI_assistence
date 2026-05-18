@@ -30,9 +30,11 @@ def build(page: ft.Page) -> ft.View:
                 bgcolor="#2563EB" if is_user else "#1E293B",
                 padding=12,
                 border_radius=12,
-                margin=ft.margin.only(
+                margin=ft.Margin(
                     left=80 if is_user else 0,
+                    top=0,
                     right=0 if is_user else 80,
+                    bottom=0,
                 ),
             )
         )
