@@ -1,0 +1,17 @@
+# Fichiers secrets et Tokens
+.env
+credentials.json
+token.json
+
+# Base de données locale
+*.db
+inpt_app.db
+
+# Environnement virtuel et Cache Python
+.inptapp/
+__pycache__/
+*.pyc
+
+# Fichiers système
+.DS_Store
+Thumbs.db
