@@ -6,31 +6,35 @@ from services.calendar_service import get_events
 
 def build(page: ft.Page) -> ft.View:
     today = datetime.today()
-    state = {"year": today.year, "month": today.month, "selected": today.day}
+    state = {
+        "year": today.year,
+        "month": today.month,
+        "selected": today.day
+    }
 
-    # Titre du mois en blanc
-    month_label = ft.Text("", size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE)
-
-    grid = ft.GridView(
-        runs_count=7,
-        spacing=8,
-        run_spacing=8,
-        expand=True
+    month_label = ft.Text(
+        "", 
+        size=14, # Plus petit et élégant
+        weight=ft.FontWeight.BOLD, 
+        color=ft.Colors.WHITE
     )
+
+    # 🚀 Le GridView est remplacé par une simple Column qui va contenir nos lignes de jours
+    calendar_body = ft.Column(spacing=4, expand=False)
 
     events_column = ft.Column(
         [],
-        spacing=10,
+        spacing=8,
         scroll=ft.ScrollMode.AUTO,
         expand=True
     )
 
     loading = ft.ProgressRing(
         visible=False,
-        width=16,
-        height=16,
+        width=12,
+        height=12,
         stroke_width=2,
-        color="#38BDF8" # Bleu néon pour le chargement
+        color="#38BDF8"
     )
 
     # ================= EVENTS =================
@@ -49,24 +53,24 @@ def build(page: ft.Page) -> ft.View:
 
             if "Aucun" in result or "Erreur" in result:
                 events_column.controls.append(
-                    ft.Text(result, color="#94A3B8", italic=True, size=13)
+                    ft.Text(result, color="#64748B", size=11, italic=True)
                 )
             else:
                 events = result.split("\n---\n")
                 for event in events:
                     events_column.controls.append(
                         ft.Container(
-                            content=ft.Text(event, color=ft.Colors.WHITE, size=13),
-                            bgcolor="#1E293B", # Fond sombre type Glassmorphism
-                            padding=15,
-                            border_radius=12,
-                            # Bordure gauche colorée (Vert néon) pour le style
-                            border=ft.border.only(left=ft.BorderSide(4, "#10B981")),
-                            # CORRECTION FLET 0.80+ : ft.Colors.BLACK au lieu de "black"
-                            shadow=ft.BoxShadow(blur_radius=5, color=ft.Colors.with_opacity(0.2, ft.Colors.BLACK))
+                            content=ft.Text(event, color=ft.Colors.WHITE, size=11),
+                            bgcolor="#1E293B",
+                            padding=10,
+                            border_radius=8,
+                            border=ft.Border(left=ft.BorderSide(3, "#10B981")),
+                            shadow=ft.BoxShadow(
+                                blur_radius=4,
+                                color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK)
+                            )
                         )
                     )
-
             page.update()
 
         threading.Thread(target=fetch).start()
@@ -74,81 +78,90 @@ def build(page: ft.Page) -> ft.View:
     # ================= CLICK =================
     def on_day_click(e):
         day = e.control.data
-        if day:
-            state["selected"] = day
-            date_str = f"{state['year']}-{state['month']:02d}-{day:02d}"
-            render_calendar()
-            load_events(date_str)
+        if not day: return
+        state["selected"] = day
+        date_str = f"{state['year']}-{state['month']:02d}-{day:02d}"
+        render_calendar()
+        load_events(date_str)
 
-    # ================= CALENDAR =================
+    # ================= CALENDAR (CONTRÔLE ABSOLU) =================
     def render_calendar():
-        month_label.value = f"{calendar.month_name[state['month']]} {state['year']}"
-        grid.controls.clear()
+        month_label.value = f"{calendar.month_name[state['month']].capitalize()} {state['year']}"
+        calendar_body.controls.clear()
 
-        # En-têtes des jours en couleur vive
+        # 1. Ligne des jours de la semaine (Minuscule)
+        weekdays_row = ft.Row(alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
         for d in ["L", "M", "M", "J", "V", "S", "D"]:
-            grid.controls.append(
+            weekdays_row.controls.append(
                 ft.Container(
-                    content=ft.Text(d, size=12, weight=ft.FontWeight.BOLD, color="#38BDF8"),
-                    alignment=ft.Alignment.CENTER, # CORRECTION FLET 0.80+
-                    height=20,
+                    width=28, 
+                    alignment=ft.Alignment(0, 0),
+                    content=ft.Text(d, size=10, weight=ft.FontWeight.BOLD, color="#94A3B8")
                 )
             )
+        calendar_body.controls.append(weekdays_row)
 
-        first_weekday, days_in_month = calendar.monthrange(
-            state["year"], state["month"]
-        )
-        first_weekday = (first_weekday + 1) % 7
+        # 2. Construction de la grille mathématique
+        first_weekday, days_in_month = calendar.monthrange(state["year"], state["month"])
+        current_row = ft.Row(alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
 
+        # Remplir les jours vides du début du mois
         for _ in range(first_weekday):
-            grid.controls.append(ft.Container())
+            current_row.controls.append(ft.Container(width=28, height=28))
 
+        # Remplir les vrais jours
         for day in range(1, days_in_month + 1):
-            is_today = (
-                day == today.day
-                and state["month"] == today.month
-                and state["year"] == today.year
-            )
-            is_selected = day == state["selected"]
+            is_today = (day == today.day and state["month"] == today.month and state["year"] == today.year)
+            is_selected = (day == state["selected"])
 
-            # 🎨 STYLE DARK COLORÉ
+            bg_color = ft.Colors.TRANSPARENT
+            txt_color = ft.Colors.WHITE
+            border = None
+
             if is_selected:
-                bg = "#EC4899" # Rose néon quand sélectionné
-                txt = ft.Colors.WHITE
-                border = ft.border.all(0, ft.Colors.TRANSPARENT)
+                bg_color = "#EC4899" # Rose néon
             elif is_today:
-                bg = "#38BDF8" # Bleu vif pour aujourd'hui
-                txt = "#0F172A" # Texte sombre pour faire contraste
-                border = ft.border.all(0, ft.Colors.TRANSPARENT)
-            else:
-                bg = "#111827" # Fond de la carte très sombre
-                txt = ft.Colors.WHITE
-                border = ft.border.all(1, "#1E293B") # Bordure subtile
+                txt_color = "#38BDF8" # Bleu néon
+                border = ft.Border(*[ft.BorderSide(1, "#38BDF8")]*4) # Contour léger
 
-            grid.controls.append(
+            current_row.controls.append(
                 ft.Container(
-                    content=ft.Text(str(day), color=txt, size=13, weight=ft.FontWeight.BOLD if is_selected or is_today else ft.FontWeight.NORMAL),
-                    bgcolor=bg,
-                    border_radius=10,
-                    height=35,  
-                    alignment=ft.Alignment.CENTER, # CORRECTION FLET 0.80+
+                    width=28, # 🔥 TAILLE STRICTE MINIMALISTE
+                    height=28,
+                    alignment=ft.Alignment(0, 0),
+                    bgcolor=bg_color,
+                    border=border,
+                    border_radius=14, # 🔥 RENDU CIRCULAIRE IOS
+                    content=ft.Text(
+                        str(day),
+                        size=11,
+                        color=txt_color,
+                        weight=ft.FontWeight.BOLD if (is_selected or is_today) else ft.FontWeight.NORMAL
+                    ),
                     data=day,
                     on_click=on_day_click,
-                    border=border,
-                    shadow=ft.BoxShadow(blur_radius=8, color=bg, spread_radius=1) if is_selected or is_today else None # Effet de lueur (glow)
                 )
             )
+
+            # Si la ligne a 7 jours, on l'ajoute au calendrier et on en crée une nouvelle
+            if len(current_row.controls) == 7:
+                calendar_body.controls.append(current_row)
+                current_row = ft.Row(alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
+
+        # Ajouter les derniers jours restants s'il y en a
+        if len(current_row.controls) > 0 and len(current_row.controls) < 7:
+            while len(current_row.controls) < 7:
+                current_row.controls.append(ft.Container(width=28, height=28))
+            calendar_body.controls.append(current_row)
 
         page.update()
 
     # ================= NAV =================
     def prev_month(e):
         if state["month"] == 1:
-            state["month"] = 12
-            state["year"] -= 1
+            state["month"], state["year"] = 12, state["year"] - 1
         else:
             state["month"] -= 1
-
         state["selected"] = 1
         render_calendar()
         events_column.controls.clear()
@@ -156,103 +169,90 @@ def build(page: ft.Page) -> ft.View:
 
     def next_month(e):
         if state["month"] == 12:
-            state["month"] = 1
-            state["year"] += 1
+            state["month"], state["year"] = 1, state["year"] + 1
         else:
             state["month"] += 1
-
         state["selected"] = 1
         render_calendar()
         events_column.controls.clear()
         page.update()
 
-    # ================= HEADER =================
-    header = ft.Container(
-        padding=15,
-        border_radius=15,
-        bgcolor="#111827",
-        shadow=ft.BoxShadow(blur_radius=15, color=ft.Colors.with_opacity(0.2, ft.Colors.BLACK)), # CORRECTION FLET 0.80+
-        content=ft.Row(
-            [
-                ft.IconButton(
-                    icon=ft.Icons.ARROW_BACK_ROUNDED,
-                    icon_color=ft.Colors.WHITE,
-                    icon_size=20,
-                    on_click=lambda _: page.go("/rdv"),
-                ),
-                ft.Text(
-                    "Mon Calendrier",
-                    size=18,
-                    weight=ft.FontWeight.BOLD,
-                    color=ft.Colors.WHITE,
-                ),
-            ],
-            spacing=10,
-        ),
-    )
+    async def go_back(e):
+        await page.push_route("/rdv")
 
-    # ================= MONTH NAV =================
+    # ================= UI ASSEMBLAGE =================
+    
+    # Boutons de navigation forcés à être minuscules
+    btn_style = ft.ButtonStyle(padding=0)
+
     nav_mois = ft.Row(
         [
-            ft.IconButton(ft.Icons.CHEVRON_LEFT, icon_color=ft.Colors.WHITE, icon_size=20, on_click=prev_month),
+            ft.IconButton(ft.Icons.CHEVRON_LEFT, icon_color=ft.Colors.WHITE, icon_size=16, width=24, height=24, style=btn_style, on_click=prev_month),
             month_label,
-            ft.IconButton(ft.Icons.CHEVRON_RIGHT, icon_color=ft.Colors.WHITE, icon_size=20, on_click=next_month),
+            ft.IconButton(ft.Icons.CHEVRON_RIGHT, icon_color=ft.Colors.WHITE, icon_size=16, width=24, height=24, style=btn_style, on_click=next_month),
         ],
         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
     )
 
-    # ================= BLOCS =================
     bloc_calendrier = ft.Container(
-        expand=True,
-        border_radius=20,
+        border_radius=15,
         bgcolor="#111827",
-        padding=20,
-        shadow=ft.BoxShadow(blur_radius=15, color=ft.Colors.with_opacity(0.15, ft.Colors.BLACK)), # CORRECTION FLET 0.80+
-        content=ft.Column([nav_mois, grid], spacing=15, expand=True),
+        padding=12,
+        shadow=ft.BoxShadow(blur_radius=10, color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK)),
+        content=ft.Column(
+            [nav_mois, ft.Container(height=5), calendar_body],
+            spacing=0,
+        ),
     )
 
-    date_selected_str = f"{state['year']}-{state['month']:02d}-{state['selected']:02d}"
-
     bloc_evenements = ft.Container(
-        padding=20,
-        border_radius=20,
+        expand=True, # Prend tout l'espace restant en bas
+        padding=15,
+        border_radius=15,
         bgcolor="#111827",
-        height=220,
-        shadow=ft.BoxShadow(blur_radius=15, color=ft.Colors.with_opacity(0.15, ft.Colors.BLACK)), # CORRECTION FLET 0.80+
+        shadow=ft.BoxShadow(blur_radius=10, color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK)),
         content=ft.Column(
             [
                 ft.Row(
                     [
-                        ft.Text(
-                            "Événements du jour",
-                            size=16,
-                            weight=ft.FontWeight.BOLD,
-                            color=ft.Colors.WHITE,
-                        ),
+                        ft.Text("Événements", size=14, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
                         loading,
                     ],
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                 ),
                 events_column,
             ],
-            spacing=12,
-            expand=True,
+            spacing=10,
         ),
+    )
+
+    header = ft.Row(
+        [
+            ft.IconButton(icon=ft.Icons.ARROW_BACK_IOS_NEW, icon_color=ft.Colors.WHITE, icon_size=14, width=24, height=24, style=btn_style, on_click=go_back),
+            ft.Text("Mon Calendrier", size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
+        ],
+        alignment=ft.MainAxisAlignment.START,
     )
 
     # ================= INIT =================
     render_calendar()
+    date_selected_str = f"{state['year']}-{state['month']:02d}-{state['selected']:02d}"
     load_events(date_selected_str)
 
     return ft.View(
         route="/calendrier",
         padding=15,
-        bgcolor="#0B1220",  # Fond très sombre comme dans home.py
+        bgcolor="#0B1220",
         controls=[
             ft.Column(
-                [header, bloc_calendrier, bloc_evenements],
+                [
+                    header, 
+                    ft.Container(height=5), # Espace propre
+                    bloc_calendrier, 
+                    bloc_evenements
+                ],
                 expand=True,
-                spacing=15,
+                spacing=10,
             )
         ],
     )

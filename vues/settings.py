@@ -71,7 +71,7 @@ def build(page: ft.Page) -> ft.View:
 
     profile_card = ft.Card(
         elevation=2, 
-        margin=ft.margin.only(bottom=20),
+        margin=ft.Margin(bottom=20), # CORRIGÉ
         content=ft.Container(
             padding=20,
             content=ft.Row([
@@ -96,10 +96,10 @@ def build(page: ft.Page) -> ft.View:
     preferences_card = ft.Card(
         elevation=2,
         content=ft.Container(
-            padding=ft.padding.symmetric(vertical=10),
+            padding=ft.Padding(top=10, bottom=10, left=0, right=0), # CORRIGÉ (remplace symmetric)
             content=ft.Column([
                 ft.Container(
-                    padding=ft.padding.only(left=15, bottom=5, top=5), 
+                    padding=ft.Padding(left=15, bottom=5, top=5, right=0), # CORRIGÉ
                     content=ft.Row([
                         ft.Icon(ft.Icons.TUNE, color=ft.Colors.ORANGE),
                         ft.Text("Préférences", size=18, weight=ft.FontWeight.BOLD)
@@ -129,7 +129,7 @@ def build(page: ft.Page) -> ft.View:
                 controls=[
                     ft.Container(
                         expand=True,
-                        alignment=ft.Alignment(0, 0),
+                        alignment=ft.alignment.center, # CORRIGÉ
                         content=ft.Column([
                             ft.Icon(ft.Icons.LOCK_OUTLINE, size=60, color="white"),
                             ft.Text("Déconnecté", size=24, weight=ft.FontWeight.BOLD, color="white"),
@@ -140,9 +140,10 @@ def build(page: ft.Page) -> ft.View:
             )
         )
         page.update()
+
     logout_card = ft.Card(
         elevation=2,
-        margin=ft.margin.only(top=20),
+        margin=ft.Margin(top=20), # CORRIGÉ
         content=ft.Container(
             padding=15,
             content=ft.Column([
@@ -160,6 +161,7 @@ def build(page: ft.Page) -> ft.View:
             ], spacing=10)
         )
     )
+
     # --- VUE FINALE ---
     return ft.View(
         route="/settings", 
@@ -175,8 +177,8 @@ def build(page: ft.Page) -> ft.View:
             preferences_card,
             logout_card,
             ft.Container(
-                margin=ft.margin.only(top=40), 
-                alignment=ft.Alignment(0, 0),
+                margin=ft.Margin(top=40), # CORRIGÉ
+                alignment=ft.alignment.center, # CORRIGÉ
                 content=ft.Text("INPT APP version 1.0", size=12, color=ft.Colors.GREY_500)
             )
         ]
