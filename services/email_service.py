@@ -1,5 +1,7 @@
-
+import base64
+from email.message import EmailMessage
 from services.google_auth import get_credentials
+from googleapiclient.discovery import build
 
 def get_emails_data(limit: int = 5, unread_only: bool = True) -> list:
     """Récupère les emails sous forme de liste de dictionnaires pour l'interface Flet."""
@@ -53,3 +55,34 @@ def get_emails_data(limit: int = 5, unread_only: bool = True) -> list:
     except Exception as e:
         print(f"Erreur Gmail: {e}")
         return []
+
+def get_unread_emails_text(limit: int = 5) -> str:
+    """Traduit la liste des emails en texte brut pour que l'IA (MCP) puisse les lire."""
+    emails = get_emails_data(limit, unread_only=True)
+    if not emails:
+        return "Vous n'avez aucun email non lu pour le moment."
+    
+    texte_ia = "Voici les derniers emails non lus :\n\n"
+    for mail in emails:
+        texte_ia += f"📧 De : {mail['expediteur']}\nSujet : {mail['sujet']}\nRésumé : {mail['snippet']}\n\n"
+    return texte_ia
+
+def send_email(destinataire: str, sujet: str, contenu: str) -> str:
+    """Crée et envoie un email via l'API Gmail."""
+    try:
+        creds = get_credentials()
+        service = build('gmail', 'v1', credentials=creds)
+
+        message = EmailMessage()
+        message.set_content(contenu)
+        message['To'] = destinataire
+        message['Subject'] = sujet
+
+        encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        create_message = {'raw': encoded_message}
+
+        service.users().messages().send(userId="me", body=create_message).execute()
+        return f"✅ Email envoyé avec succès à {destinataire} !"
+
+    except Exception as e:
+        return f"❌ Erreur lors de l'envoi de l'email : {str(e)}"

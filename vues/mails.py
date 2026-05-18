@@ -20,7 +20,7 @@ def build(page: ft.Page) -> ft.View:
                     ft.Container(
                         padding=20,
                         alignment=ft.Alignment(0, 0),
-                        content=ft.Text("Aucun nouvel email. 🎉", color=ft.Colors.GREY_500, italic=True)
+                        content=ft.Text("Aucun nouvel email.", color=ft.Colors.GREY_500, italic=True)
                     )
                 )
             else:
@@ -30,7 +30,8 @@ def build(page: ft.Page) -> ft.View:
                             padding=15,
                             border_radius=12,
                             bgcolor="#1E293B",
-                            border=ft.border.only(left=ft.BorderSide(4, "#38BDF8")),
+                            # CORRECTION FLET 0.80+ : Majuscule sur Border et pas de .only()
+                            border=ft.Border(left=ft.BorderSide(4, "#38BDF8")), 
                             shadow=ft.BoxShadow(blur_radius=5, color=ft.Colors.with_opacity(0.15, ft.Colors.BLACK)),
                             content=ft.Column([
                                 ft.Row([
@@ -79,8 +80,8 @@ def build(page: ft.Page) -> ft.View:
 
     view.controls = [
         ft.Container(
-            margin=ft.Margin(0, 0, 0, 20),
-            content=ft.ElevatedButton(
+            margin=ft.Margin(left=0, top=0, right=0, bottom=20),
+            content=ft.Button( # CORRECTION FLET 0.80+ : Remplacement de ElevatedButton par Button
                 content=ft.Row([
                     ft.Icon(ft.Icons.ALL_INBOX, color=ft.Colors.WHITE),
                     ft.Text("OUVRIR TOUS MES MAILS", weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
