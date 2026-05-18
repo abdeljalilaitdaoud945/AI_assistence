@@ -35,6 +35,7 @@ def build(page: ft.Page) -> ft.View:
     )
 
     async def load_data():
+        # SharedPreferences.get est une coroutine, on doit l'attendre 
         saved_notifs = await prefs.get("notifications_enabled")
         notifs_on = saved_notifs if saved_notifs is not None else False
         notif_switch.value = notifs_on
@@ -71,7 +72,7 @@ def build(page: ft.Page) -> ft.View:
 
     profile_card = ft.Card(
         elevation=2, 
-        margin=ft.Margin(bottom=20), # CORRIGÉ
+        margin=ft.Margin(left=0, top=0, right=0, bottom=20), # CORRIGÉ : Majuscule et pas de .only [cite: 1341]
         content=ft.Container(
             padding=20,
             content=ft.Row([
@@ -96,10 +97,10 @@ def build(page: ft.Page) -> ft.View:
     preferences_card = ft.Card(
         elevation=2,
         content=ft.Container(
-            padding=ft.Padding(top=10, bottom=10, left=0, right=0), # CORRIGÉ (remplace symmetric)
+            padding=ft.Padding(left=0, top=10, right=0, bottom=10), # CORRIGÉ : Majuscule et pas de .symmetric 
             content=ft.Column([
                 ft.Container(
-                    padding=ft.Padding(left=15, bottom=5, top=5, right=0), # CORRIGÉ
+                    padding=ft.Padding(left=15, top=5, right=0, bottom=5), # CORRIGÉ
                     content=ft.Row([
                         ft.Icon(ft.Icons.TUNE, color=ft.Colors.ORANGE),
                         ft.Text("Préférences", size=18, weight=ft.FontWeight.BOLD)
@@ -129,7 +130,7 @@ def build(page: ft.Page) -> ft.View:
                 controls=[
                     ft.Container(
                         expand=True,
-                        alignment=ft.alignment.center, # CORRIGÉ
+                        alignment=ft.Alignment(0, 0), # CORRIGÉ : Notation mathématique robuste [cite: 1333]
                         content=ft.Column([
                             ft.Icon(ft.Icons.LOCK_OUTLINE, size=60, color="white"),
                             ft.Text("Déconnecté", size=24, weight=ft.FontWeight.BOLD, color="white"),
@@ -143,7 +144,7 @@ def build(page: ft.Page) -> ft.View:
 
     logout_card = ft.Card(
         elevation=2,
-        margin=ft.Margin(top=20), # CORRIGÉ
+        margin=ft.Margin(left=0, top=20, right=0, bottom=0), # CORRIGÉ
         content=ft.Container(
             padding=15,
             content=ft.Column([
@@ -177,8 +178,8 @@ def build(page: ft.Page) -> ft.View:
             preferences_card,
             logout_card,
             ft.Container(
-                margin=ft.Margin(top=40), # CORRIGÉ
-                alignment=ft.alignment.center, # CORRIGÉ
+                margin=ft.Margin(left=0, top=40, right=0, bottom=0), # CORRIGÉ
+                alignment=ft.Alignment.CENTER, # CORRIGÉ : Majuscule obligatoire [cite: 1333]
                 content=ft.Text("INPT APP version 1.0", size=12, color=ft.Colors.GREY_500)
             )
         ]

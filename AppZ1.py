@@ -1,5 +1,5 @@
 import flet as ft 
-from vues import home, mails, settings , AIassistant, rdv,calendrier
+from vues import home, mails, settings , AIassistant, rdv,calendrier,mailtotal
 from services.google_auth import get_credentials, get_user_info
 
 ROUTE_BUILDERS = {
@@ -9,6 +9,7 @@ ROUTE_BUILDERS = {
     "/settings": settings.build, 
     "/AI": AIassistant.build,
     "/calendrier": calendrier.build,
+    "/mailtotal": mailtotal.build,
 }
 
 
@@ -18,7 +19,8 @@ ROUTE_STACKS = {
     "/rdv": ["/rdv"],           
     "/settings": ["/", "/settings"], 
     "/AI": ["/AI"],
-    "/calendrier": ["/rdv","/calendrier"] 
+    "/calendrier": ["/rdv","/calendrier"] ,
+    "/mailtotal": ["/mails","/mailtotal"] 
 }
 def main(page: ft.Page):
     creds = get_credentials()           # JE MET CA EN COMMENTAIRE POUR METTRE LA CONNEXION GOOGLE EN PAUSE
