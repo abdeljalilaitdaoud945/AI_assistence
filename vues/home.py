@@ -23,9 +23,6 @@ def build(page: ft.Page) -> ft.View:
 
     view.navigation_bar = build_navbar(page, current_index)
 
-    # ===============================
-    # APPBAR (compatible anciennes versions)
-    # ===============================
     view.appbar = ft.AppBar(
         bgcolor="#0F172A",
         elevation=0,
@@ -35,7 +32,7 @@ def build(page: ft.Page) -> ft.View:
             height=46,
             border_radius=16,
             bgcolor="#2563EB",
-            alignment=ft.alignment.Alignment(0, 0),
+            alignment=ft.Alignment.CENTER,
             content=ft.Icon(ft.Icons.AUTO_AWESOME, color="white"),
         ),
         leading_width=60,
@@ -74,10 +71,6 @@ def build(page: ft.Page) -> ft.View:
     )
 
     view.controls = [
-
-        # ===============================
-        # HERO
-        # ===============================
         ft.Container(
             margin=20,
             padding=30,
@@ -86,7 +79,7 @@ def build(page: ft.Page) -> ft.View:
             shadow=ft.BoxShadow(
                 blur_radius=25,
                 spread_radius=1,
-                color=ft.Colors.with_opacity(0.25, "black"),
+                color=ft.Colors.with_opacity(0.25, ft.Colors.BLACK),
                 offset=ft.Offset(0, 12),
             ),
             content=ft.Column(
@@ -111,13 +104,10 @@ def build(page: ft.Page) -> ft.View:
                     )
                 ]
             )
-        ),
+        ), # <--- CORRECTION: Remplacement du crochet ] par une parenthèse )
 
         section_title("Accès rapide"),
 
-        # ===============================
-        # GRID MENU
-        # ===============================
         ft.Container(
             padding=20,
             height=320,
@@ -134,7 +124,7 @@ def build(page: ft.Page) -> ft.View:
                     premium_card("Étudiants", ft.Icons.GROUP, "#EC4899"),
                 ]
             )
-        ),
+        ), # <--- CORRECTION: Remplacement du crochet ] par une parenthèse )
 
         section_title("Analytics"),
 
@@ -153,10 +143,6 @@ def build(page: ft.Page) -> ft.View:
 
     return view
 
-
-# ==================================
-# COMPONENTS
-# ==================================
 
 def glass_icon(icon):
     return ft.Container(
@@ -188,7 +174,7 @@ def premium_card(title, icon, color):
         shadow=ft.BoxShadow(
             blur_radius=18,
             spread_radius=1,
-            color=ft.Colors.with_opacity(0.15, "black"),
+            color=ft.Colors.with_opacity(0.15, ft.Colors.BLACK),
             offset=ft.Offset(0, 8),
         ),
         content=ft.Column(
@@ -201,7 +187,7 @@ def premium_card(title, icon, color):
                     height=58,
                     border_radius=18,
                     bgcolor=color,
-                    alignment=ft.alignment.Alignment(0, 0),
+                    alignment=ft.Alignment.CENTER,
                     content=ft.Icon(icon, color="white", size=28),
                 ),
                 ft.Text(

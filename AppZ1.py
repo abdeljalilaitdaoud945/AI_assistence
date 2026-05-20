@@ -1,5 +1,5 @@
 import flet as ft 
-from vues import home, mails, settings , AIassistant, rdv,calendrier,mailtotal
+from vues import home, mails, settings, AIassistant, rdv, calendrier, mailtotal
 from services.google_auth import get_credentials, get_user_info
 
 ROUTE_BUILDERS = {
@@ -12,19 +12,20 @@ ROUTE_BUILDERS = {
     "/mailtotal": mailtotal.build,
 }
 
-
 ROUTE_STACKS = {
     "/": ["/"],
     "/mails": ["/mails"],       
     "/rdv": ["/rdv"],           
     "/settings": ["/", "/settings"], 
     "/AI": ["/AI"],
-    "/calendrier": ["/rdv","/calendrier"] ,
-    "/mailtotal": ["/mails","/mailtotal"] 
+    "/calendrier": ["/rdv", "/calendrier"],
+    "/mailtotal": ["/mails", "/mailtotal"] 
 }
+
 def main(page: ft.Page):
-    creds = get_credentials()           # JE MET CA EN COMMENTAIRE POUR METTRE LA CONNEXION GOOGLE EN PAUSE
-    user= get_user_info(creds)                   # JE MET CA EN COMMENTAIRE POUR METTRE LA CONNEXION GOOGLE EN PAUSE
+    # JE MET CA EN COMMENTAIRE POUR METTRE LA CONNEXION GOOGLE EN PAUSE
+    creds = get_credentials()          
+    user = get_user_info(creds)                  
     print("Connecté :", creds.valid)
     print(f"Connecté : {user['prenom']} {user['nom']} ({user['email']})")
     page.data = user
@@ -42,9 +43,7 @@ def main(page: ft.Page):
         )
     )
 
-    # pour load les settings au début ajouter les nouveaux ici
     async def load_settings():
-        # On doit utiliser await ici
         saved_theme = await page.shared_preferences.get("theme_mode")
         page.theme_mode = ft.ThemeMode.DARK if saved_theme == "dark" else ft.ThemeMode.LIGHT
         page.update()
@@ -56,23 +55,18 @@ def main(page: ft.Page):
     def route_change(e=None):
         page.views.clear()
         
-        # On récupère la pile de routes à afficher
         stack = ROUTE_STACKS.get(page.route, ["/"])
         
-        # On construit la pile
         for route_path in stack:
             if route_path in ROUTE_BUILDERS:
                 page.views.append(ROUTE_BUILDERS[route_path](page))
         
         page.update()
         
-    # ---pour retour en arriere
     async def view_pop(e):
-        
         if page.route == "/settings":
             await page.push_route(page.current_tab)
         else:
-            # Sinon on retourne à l'accueil par défaut
             await page.push_route("/")
 
     page.on_route_change = route_change

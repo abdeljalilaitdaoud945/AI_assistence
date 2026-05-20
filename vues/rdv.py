@@ -5,10 +5,8 @@ from vues.navbar import build_navbar
 from services.calendar_service import get_today_events
 
 def build(page: ft.Page) -> ft.View:
-    # --- 1. ÉTAT DE L'INTERFACE ---
     sidebar_visible = True
 
-    # --- 2. COMPOSANTS DU PANNEAU IA (DISCRET) ---
     ia_content = ft.Column([
         ft.Text("Copilote IA", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_800),
         ft.Divider(),
@@ -36,11 +34,9 @@ def build(page: ft.Page) -> ft.View:
         padding=20,
         bgcolor=ft.Colors.GREY_200, 
         visible=sidebar_visible,
-        # Utilisation de l'énumération officielle pour l'animation
         animate=ft.Animation(400, ft.AnimationCurve.DECELERATE),
     )
 
-    # --- 3. BOUTON VERS LE CALENDRIER COMPLET ---
     async def open_calendar(e):
         await page.push_route("/calendrier")
 
@@ -55,11 +51,9 @@ def build(page: ft.Page) -> ft.View:
             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
             on_click=open_calendar 
         ),
-        # ft.Margin strict avec majuscule
         margin=ft.Margin(left=0, top=0, right=0, bottom=20)
     )
 
-    # --- 4. TABLEAU DE BORD (SYNCHRONISATION GOOGLE EN TEMPS RÉEL) ---
     dashboard_column = ft.Column([], expand=True, scroll=ft.ScrollMode.AUTO)
     loading = ft.ProgressRing(visible=False, width=20, height=20, color=ft.Colors.BLUE_700)
 
@@ -152,7 +146,6 @@ def build(page: ft.Page) -> ft.View:
 
     load_real_events()
 
-    # --- 5. LOGIQUE D'INTERACTION ---
     def toggle_sidebar(e):
         nonlocal sidebar_visible
         sidebar_visible = not sidebar_visible
@@ -173,7 +166,6 @@ def build(page: ft.Page) -> ft.View:
     async def push_settings(e):
         await page.push_route("/settings")
 
-    # --- 6. ASSEMBLAGE FINAL DE LA VUE ---
     view = ft.View(route="/rdv", padding=0)
 
     route_indexes = {"/": 0, "/mails": 1, "/rdv": 2}

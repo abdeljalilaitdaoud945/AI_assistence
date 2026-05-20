@@ -4,7 +4,6 @@ from services.google_auth import get_credentials
 from googleapiclient.discovery import build
 
 def get_emails_data(limit: int = 5, unread_only: bool = True) -> list:
-    """Récupère les emails sous forme de liste de dictionnaires pour l'interface Flet."""
     try:
         creds = get_credentials()
         service = build('gmail', 'v1', credentials=creds)
@@ -32,7 +31,7 @@ def get_emails_data(limit: int = 5, unread_only: bool = True) -> list:
             headers = msg_data['payload']['headers']
             sujet = "Sans objet"
             expediteur = "Inconnu"
-            snippet = msg_data.get('snippet', '') # Le petit résumé du mail
+            snippet = msg_data.get('snippet', '')
             
             for header in headers:
                 if header['name'] == 'Subject':
@@ -42,7 +41,6 @@ def get_emails_data(limit: int = 5, unread_only: bool = True) -> list:
             
             expediteur_propre = expediteur.split('<')[0].strip() if '<' in expediteur else expediteur
             
-            # On ajoute chaque mail sous forme de dictionnaire
             email_list.append({
                 "id": msg['id'],
                 "expediteur": expediteur_propre,
@@ -57,18 +55,16 @@ def get_emails_data(limit: int = 5, unread_only: bool = True) -> list:
         return []
 
 def get_unread_emails_text(limit: int = 5) -> str:
-    """Traduit la liste des emails en texte brut pour que l'IA (MCP) puisse les lire."""
     emails = get_emails_data(limit, unread_only=True)
     if not emails:
         return "Vous n'avez aucun email non lu pour le moment."
     
-    texte_ia = "Voici les derniers emails non lus :\n\n"
+    texte_ia = "Voici les derniers emails non lu :\n\n"
     for mail in emails:
         texte_ia += f"📧 De : {mail['expediteur']}\nSujet : {mail['sujet']}\nRésumé : {mail['snippet']}\n\n"
     return texte_ia
 
 def send_email(destinataire: str, sujet: str, contenu: str) -> str:
-    """Crée et envoie un email via l'API Gmail."""
     try:
         creds = get_credentials()
         service = build('gmail', 'v1', credentials=creds)

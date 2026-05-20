@@ -114,8 +114,6 @@ def build(page: ft.Page) -> ft.View:
     def clear_chat(e):
         chat.controls.clear()
         page._chat_history.clear()
-        from services.ai_agent import _history
-        _history.clear()
         page.update()
 
     def handle_checked_item_click(e):

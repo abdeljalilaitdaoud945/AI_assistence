@@ -5,7 +5,6 @@ def build(page: ft.Page) -> ft.View:
     
     prefs = ft.SharedPreferences()
 
-    # Récupérer infos Google
     prenom = ""
     nom = ""
     email = ""
@@ -16,7 +15,6 @@ def build(page: ft.Page) -> ft.View:
         email = page.data.get("email", "")
         photo = page.data.get("photo", "")
 
-    # --- NOTIFICATIONS ---
     notif_switch = ft.Switch(value=False)
     notif_tile = ft.ListTile(
         leading=ft.Icon(ft.Icons.NOTIFICATIONS_OFF),
@@ -25,7 +23,6 @@ def build(page: ft.Page) -> ft.View:
         trailing=notif_switch,
     )
     
-    # --- THÈME ---
     theme_switch = ft.Switch(value=page.theme_mode == ft.ThemeMode.DARK)
     theme_tile = ft.ListTile(
         leading=ft.Icon(ft.Icons.DARK_MODE if theme_switch.value else ft.Icons.LIGHT_MODE),
@@ -35,7 +32,6 @@ def build(page: ft.Page) -> ft.View:
     )
 
     async def load_data():
-        # SharedPreferences.get est une coroutine, on doit l'attendre 
         saved_notifs = await prefs.get("notifications_enabled")
         notifs_on = saved_notifs if saved_notifs is not None else False
         notif_switch.value = notifs_on
@@ -62,7 +58,6 @@ def build(page: ft.Page) -> ft.View:
     theme_switch.on_change = toggle_theme
     notif_switch.on_change = save_notifications
 
-    # --- PROFIL GOOGLE ---
     avatar = ft.CircleAvatar(
         foreground_image_src=photo,
         content=ft.Text(prenom[0].upper() if prenom else "?", size=24),
@@ -72,7 +67,7 @@ def build(page: ft.Page) -> ft.View:
 
     profile_card = ft.Card(
         elevation=2, 
-        margin=ft.Margin(left=0, top=0, right=0, bottom=20), # CORRIGÉ : Majuscule et pas de .only [cite: 1341]
+        margin=ft.Margin(left=0, top=0, right=0, bottom=20), 
         content=ft.Container(
             padding=20,
             content=ft.Row([
@@ -93,14 +88,13 @@ def build(page: ft.Page) -> ft.View:
         )
     )
 
-    # --- PRÉFÉRENCES ---
     preferences_card = ft.Card(
         elevation=2,
         content=ft.Container(
-            padding=ft.Padding(left=0, top=10, right=0, bottom=10), # CORRIGÉ : Majuscule et pas de .symmetric 
+            padding=ft.Padding(left=0, top=10, right=0, bottom=10), 
             content=ft.Column([
                 ft.Container(
-                    padding=ft.Padding(left=15, top=5, right=0, bottom=5), # CORRIGÉ
+                    padding=ft.Padding(left=15, top=5, right=0, bottom=5), 
                     content=ft.Row([
                         ft.Icon(ft.Icons.TUNE, color=ft.Colors.ORANGE),
                         ft.Text("Préférences", size=18, weight=ft.FontWeight.BOLD)
@@ -113,7 +107,6 @@ def build(page: ft.Page) -> ft.View:
         )
     )
 
-    # --- DÉCONNEXION ---
     def on_logout(e):
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         token_path = os.path.join(BASE_DIR, "token.json")
@@ -130,7 +123,7 @@ def build(page: ft.Page) -> ft.View:
                 controls=[
                     ft.Container(
                         expand=True,
-                        alignment=ft.Alignment(0, 0), # CORRIGÉ : Notation mathématique robuste [cite: 1333]
+                        alignment=ft.Alignment(0, 0), 
                         content=ft.Column([
                             ft.Icon(ft.Icons.LOCK_OUTLINE, size=60, color="white"),
                             ft.Text("Déconnecté", size=24, weight=ft.FontWeight.BOLD, color="white"),
@@ -144,7 +137,7 @@ def build(page: ft.Page) -> ft.View:
 
     logout_card = ft.Card(
         elevation=2,
-        margin=ft.Margin(left=0, top=20, right=0, bottom=0), # CORRIGÉ
+        margin=ft.Margin(left=0, top=20, right=0, bottom=0), 
         content=ft.Container(
             padding=15,
             content=ft.Column([
@@ -163,7 +156,6 @@ def build(page: ft.Page) -> ft.View:
         )
     )
 
-    # --- VUE FINALE ---
     return ft.View(
         route="/settings", 
         padding=20,
@@ -178,8 +170,8 @@ def build(page: ft.Page) -> ft.View:
             preferences_card,
             logout_card,
             ft.Container(
-                margin=ft.Margin(left=0, top=40, right=0, bottom=0), # CORRIGÉ
-                alignment=ft.Alignment.CENTER, # CORRIGÉ : Majuscule obligatoire [cite: 1333]
+                margin=ft.Margin(left=0, top=40, right=0, bottom=0), 
+                alignment=ft.Alignment.CENTER, 
                 content=ft.Text("INPT APP version 1.0", size=12, color=ft.Colors.GREY_500)
             )
         ]

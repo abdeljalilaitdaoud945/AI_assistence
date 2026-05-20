@@ -9,7 +9,6 @@ def build(page: ft.Page) -> ft.View:
 
     def fetch_all_mails():
         try:
-            # On récupère 30 mails, lus ou non lus
             emails = get_emails_data(limit=30, unread_only=False)
             all_emails_column.controls.clear()
             loading.visible = False
@@ -22,17 +21,16 @@ def build(page: ft.Page) -> ft.View:
                         ft.Container(
                             padding=15,
                             border_radius=10,
-                            bgcolor="#1E293B", # Fond Glassmorphism
-                            # CORRECTION FLET 0.80+ : Majuscule sur Border et BorderSide
+                            bgcolor="#1E293B", 
                             border=ft.Border(
-                                left=ft.BorderSide(4, "#38BDF8"), # Ligne bleue néon à gauche
+                                left=ft.BorderSide(4, "#38BDF8"), 
                                 top=ft.BorderSide(1, "#0F172A"),
                                 right=ft.BorderSide(1, "#0F172A"),
                                 bottom=ft.BorderSide(1, "#0F172A")
                             ),
                             shadow=ft.BoxShadow(
                                 blur_radius=5, 
-                                color=ft.Colors.with_opacity(0.15, ft.Colors.BLACK) # Constante stricte
+                                color=ft.Colors.with_opacity(0.15, ft.Colors.BLACK) 
                             ),
                             content=ft.Column([
                                 ft.Row([
@@ -53,7 +51,6 @@ def build(page: ft.Page) -> ft.View:
 
     threading.Thread(target=fetch_all_mails).start()
 
-    # CORRECTION FLET 0.80+ : Fonction asynchrone pour le routage
     async def go_back(e):
         await page.push_route("/mails")
 
@@ -68,7 +65,7 @@ def build(page: ft.Page) -> ft.View:
                     icon=ft.Icons.ARROW_BACK_ROUNDED,
                     icon_color=ft.Colors.WHITE,
                     icon_size=20,
-                    on_click=go_back, # Appel propre
+                    on_click=go_back, 
                 ),
                 ft.Text(
                     "Historique Complet",

@@ -1,5 +1,4 @@
-# services/calendar_service.py
-from datetime import datetime, timedelta
+from datetime import datetime
 from googleapiclient.discovery import build
 from services.google_auth import get_credentials
 
@@ -40,6 +39,7 @@ def get_month_events(year, month):
     ).execute()
     
     return result.get("items", [])
+
 def get_events(date: str):
     creds = get_credentials()
     service = build("calendar", "v3", credentials=creds)
@@ -59,7 +59,6 @@ def get_events(date: str):
         raw_end = e["end"].get("dateTime", e["end"].get("date"))
         summary = e.get("summary", "Sans titre")
 
-        # Heure
         try:
             dt_start = datetime.fromisoformat(raw_start.replace("Z", "+00:00"))
             dt_end = datetime.fromisoformat(raw_end.replace("Z", "+00:00"))
@@ -69,29 +68,24 @@ def get_events(date: str):
 
         line = f"📅 {summary}\n⏰ {heure}"
 
-        # Lieu
         location = e.get("location")
         if location:
             line += f"\n📍 {location}"
 
-        # Description
         description = e.get("description")
         if description:
             short = description[:100] + "..." if len(description) > 100 else description
             line += f"\n📝 {short}"
 
-        # Invités
         attendees = e.get("attendees", [])
         if attendees:
             noms = [a.get("displayName", a.get("email", "")) for a in attendees]
             line += f"\n👥 {', '.join(noms)}"
 
-        # Lien visio
         hangout = e.get("hangoutLink")
         if hangout:
             line += f"\n🔗 {hangout}"
 
-        # Statut
         status = e.get("status")
         if status == "confirmed":
             line += "\n✅ Confirmé"
@@ -103,6 +97,7 @@ def get_events(date: str):
         result.append(line)
     
     return "\n---\n".join(result)
+
 def create_event(title: str, date: str, start_time: str, end_time: str):
     creds = get_credentials()
     service = build("calendar", "v3", credentials=creds)
@@ -123,7 +118,7 @@ def delete_event(event_id: str):
 def list_upcoming_events(max_results: int = 10):
     creds = get_credentials()
     service = build("calendar", "v3", credentials=creds)
-    now = datetime.now(timedelta()).isoformat() if False else datetime.utcnow().isoformat() + "Z"
+    now = datetime.utcnow().isoformat() + "Z"
     events = service.events().list(
         calendarId="primary", timeMin=now, maxResults=max_results,
         singleEvents=True, orderBy="startTime"

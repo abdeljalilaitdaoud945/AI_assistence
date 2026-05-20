@@ -14,12 +14,11 @@ def build(page: ft.Page) -> ft.View:
 
     month_label = ft.Text(
         "", 
-        size=14, # Plus petit et élégant
+        size=14, 
         weight=ft.FontWeight.BOLD, 
         color=ft.Colors.WHITE
     )
 
-    # 🚀 Le GridView est remplacé par une simple Column qui va contenir nos lignes de jours
     calendar_body = ft.Column(spacing=4, expand=False)
 
     events_column = ft.Column(
@@ -37,7 +36,6 @@ def build(page: ft.Page) -> ft.View:
         color="#38BDF8"
     )
 
-    # ================= EVENTS =================
     def load_events(date_str):
         loading.visible = True
         page.update()
@@ -75,7 +73,6 @@ def build(page: ft.Page) -> ft.View:
 
         threading.Thread(target=fetch).start()
 
-    # ================= CLICK =================
     def on_day_click(e):
         day = e.control.data
         if not day: return
@@ -84,12 +81,10 @@ def build(page: ft.Page) -> ft.View:
         render_calendar()
         load_events(date_str)
 
-    # ================= CALENDAR (CONTRÔLE ABSOLU) =================
     def render_calendar():
         month_label.value = f"{calendar.month_name[state['month']].capitalize()} {state['year']}"
         calendar_body.controls.clear()
 
-        # 1. Ligne des jours de la semaine (Minuscule)
         weekdays_row = ft.Row(alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
         for d in ["L", "M", "M", "J", "V", "S", "D"]:
             weekdays_row.controls.append(
@@ -101,15 +96,12 @@ def build(page: ft.Page) -> ft.View:
             )
         calendar_body.controls.append(weekdays_row)
 
-        # 2. Construction de la grille mathématique
         first_weekday, days_in_month = calendar.monthrange(state["year"], state["month"])
         current_row = ft.Row(alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
 
-        # Remplir les jours vides du début du mois
         for _ in range(first_weekday):
             current_row.controls.append(ft.Container(width=28, height=28))
 
-        # Remplir les vrais jours
         for day in range(1, days_in_month + 1):
             is_today = (day == today.day and state["month"] == today.month and state["year"] == today.year)
             is_selected = (day == state["selected"])
@@ -119,19 +111,19 @@ def build(page: ft.Page) -> ft.View:
             border = None
 
             if is_selected:
-                bg_color = "#EC4899" # Rose néon
+                bg_color = "#EC4899"
             elif is_today:
-                txt_color = "#38BDF8" # Bleu néon
-                border = ft.Border(*[ft.BorderSide(1, "#38BDF8")]*4) # Contour léger
+                txt_color = "#38BDF8"
+                border = ft.Border(*[ft.BorderSide(1, "#38BDF8")]*4)
 
             current_row.controls.append(
                 ft.Container(
-                    width=28, # 🔥 TAILLE STRICTE MINIMALISTE
+                    width=28, 
                     height=28,
                     alignment=ft.Alignment(0, 0),
                     bgcolor=bg_color,
                     border=border,
-                    border_radius=14, # 🔥 RENDU CIRCULAIRE IOS
+                    border_radius=14, 
                     content=ft.Text(
                         str(day),
                         size=11,
@@ -143,12 +135,10 @@ def build(page: ft.Page) -> ft.View:
                 )
             )
 
-            # Si la ligne a 7 jours, on l'ajoute au calendrier et on en crée une nouvelle
             if len(current_row.controls) == 7:
                 calendar_body.controls.append(current_row)
                 current_row = ft.Row(alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
 
-        # Ajouter les derniers jours restants s'il y en a
         if len(current_row.controls) > 0 and len(current_row.controls) < 7:
             while len(current_row.controls) < 7:
                 current_row.controls.append(ft.Container(width=28, height=28))
@@ -156,7 +146,6 @@ def build(page: ft.Page) -> ft.View:
 
         page.update()
 
-    # ================= NAV =================
     def prev_month(e):
         if state["month"] == 1:
             state["month"], state["year"] = 12, state["year"] - 1
@@ -179,10 +168,7 @@ def build(page: ft.Page) -> ft.View:
 
     async def go_back(e):
         await page.push_route("/rdv")
-
-    # ================= UI ASSEMBLAGE =================
-    
-    # Boutons de navigation forcés à être minuscules
+ 
     btn_style = ft.ButtonStyle(padding=0)
 
     nav_mois = ft.Row(
@@ -206,7 +192,7 @@ def build(page: ft.Page) -> ft.View:
     )
 
     bloc_evenements = ft.Container(
-        expand=True, # Prend tout l'espace restant en bas
+        expand=True, 
         padding=15,
         border_radius=15,
         bgcolor="#111827",
@@ -234,7 +220,6 @@ def build(page: ft.Page) -> ft.View:
         alignment=ft.MainAxisAlignment.START,
     )
 
-    # ================= INIT =================
     render_calendar()
     date_selected_str = f"{state['year']}-{state['month']:02d}-{state['selected']:02d}"
     load_events(date_selected_str)
@@ -247,7 +232,7 @@ def build(page: ft.Page) -> ft.View:
             ft.Column(
                 [
                     header, 
-                    ft.Container(height=5), # Espace propre
+                    ft.Container(height=5), 
                     bloc_calendrier, 
                     bloc_evenements
                 ],
