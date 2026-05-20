@@ -70,44 +70,21 @@ def build(page: ft.Page) -> ft.View:
         page.update()
 
         def listen():
+            import speech_recognition as sr
+            r = sr.Recognizer()
+            with sr.Microphone() as source:
+                print("Parlez...")
+                r.pause_threshold = 1
+                r.adjust_for_ambient_noise(source,) 
+                audio = r.listen(source, timeout=10)
             try:
-                import sounddevice as sd
-                import soundfile as sf
-                import tempfile
-                from dotenv import load_dotenv
-                from groq import Groq
-
-                load_dotenv()
-
-                duration = 5
-                sample_rate = 16000
-                audio_data = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=1)
-                sd.wait()
-
-                tmp = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-                sf.write(tmp.name, audio_data, sample_rate)
-
-                client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-                with open(tmp.name, "rb") as f:
-                    transcription = client.audio.transcriptions.create(
-                        model="whisper-large-v3",
-                        file=f,
-                        language="fr",
-                    )
-
-                os.unlink(tmp.name)
-                field.value = transcription.text
-                page.update()
-
-            except Exception as ex:
-                field.value = ""
-                add_bubble(f"Erreur micro : {ex}", is_user=False)
-            finally:
-                mic_btn.icon = ft.Icons.MIC
-                mic_btn.bgcolor = "#1E293B"
-                page.update()
-
-        threading.Thread(target=listen).start()
+                command = r.recognize_google(audio, language="fr-FR")
+                print(command)
+            except sr.UnknownValueError:
+                print("Désolé, je n'ai pas compris.")
+            except sr.RequestError as e:
+                print("Erreur de service; {0}".format(e))
+                threading.Thread(target=listen).start()
 
     send_btn = ft.IconButton(ft.Icons.SEND, icon_color="white", on_click=send_message)
 
