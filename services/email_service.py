@@ -5,6 +5,9 @@ from services.google_auth import get_credentials
 from googleapiclient.discovery import build
 from google import genai
 
+# Ajout pour la gouvernance
+from services.logger_service import log_action
+
 def _decode_b64url(s):
     if not s:
         return ""
@@ -119,8 +122,13 @@ def send_email(destinataire: str, sujet: str, contenu: str) -> str:
         encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
         create_message = {'raw': encoded_message}
         service.users().messages().send(userId="me", body=create_message).execute()
+        
+        # Enregistrement dans les logs de gouvernance
+        log_action("EMAIL_OUT", f"Email envoyé à {destinataire}. Sujet: {sujet}")
+        
         return f"✅ Email envoyé avec succès à {destinataire} !"
     except Exception as e:
+        log_action("EMAIL_ERROR", f"Échec d'envoi à {destinataire} : {str(e)}")
         return f"❌ Erreur lors de l'envoi de l'email : {str(e)}"
 
 def get_email_full(message_id: str) -> dict:
@@ -157,6 +165,8 @@ def send_html_email(destinataire: str, sujet: str, html_body: str) -> str:
 
         raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
         service.users().messages().send(userId="me", body={'raw': raw}).execute()
+        
+        log_action("EMAIL_OUT_HTML", f"Email HTML (PV) envoyé à {destinataire}. Sujet: {sujet}")
         return f"✅ Email envoyé à {destinataire}"
     except Exception as e:
         return f"❌ Erreur envoi HTML à {destinataire} : {e}"

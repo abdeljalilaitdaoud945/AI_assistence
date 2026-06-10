@@ -2,6 +2,9 @@ from datetime import datetime
 from googleapiclient.discovery import build
 from services.google_auth import get_credentials
 
+# Ajout pour la gouvernance
+from services.logger_service import log_action
+
 def get_today_events():
     creds = get_credentials()
     service = build("calendar", "v3", credentials=creds)
@@ -107,12 +110,19 @@ def create_event(title: str, date: str, start_time: str, end_time: str):
         "end": {"dateTime": f"{date}T{end_time}:00", "timeZone": "Africa/Casablanca"},
     }
     service.events().insert(calendarId="primary", body=event).execute()
+    
+    # Enregistrement dans les logs de gouvernance
+    log_action("EVENT_CREATED", f"Rendez-vous créé: '{title}' le {date} ({start_time}-{end_time})")
+    
     return f"Événement '{title}' créé le {date} de {start_time} à {end_time}"
 
 def delete_event(event_id: str):
     creds = get_credentials()
     service = build("calendar", "v3", credentials=creds)
     service.events().delete(calendarId="primary", eventId=event_id).execute()
+    
+    log_action("EVENT_DELETED", f"Événement supprimé (ID: {event_id})")
+    
     return f"Événement {event_id} supprimé"
 
 def list_upcoming_events(max_results: int = 10):

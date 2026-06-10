@@ -1,14 +1,14 @@
 """
-Vue Settings — préférences et compte, refondu Arc-style.
+Vue Settings — préférences, compte, et GOUVERNANCE.
 """
 
 import os
-
 import flet as ft
 
 from vues import theme as T
 from vues.theme import C, FONT
 from vues.navbar import build_navbar, nav_index_for
+from services.logger_service import get_logs
 
 
 def build(page: ft.Page) -> ft.View:
@@ -19,44 +19,51 @@ def build(page: ft.Page) -> ft.View:
     prenom = ""
     nom = ""
     email = ""
-    photo = ""
     if page.data and isinstance(page.data, dict):
         prenom = page.data.get("prenom", "")
         nom = page.data.get("nom", "")
         email = page.data.get("email", "")
-        photo = page.data.get("photo", "")
 
     # ---- Profile card ----
     initial = (prenom[:1] + nom[:1]).upper() if prenom or nom else "?"
     avatar = ft.Container(
-        width=56, height=56,
+        width=56, 
+        height=56,
         border_radius=999,
         bgcolor=ft.Colors.with_opacity(0.22, C.accent),
         alignment=ft.Alignment.CENTER,
-        content=ft.Text(initial, color=C.accent,
-                        size=FONT.h2, weight=ft.FontWeight.W_700),
+        content=ft.Text(
+            initial, 
+            color=C.accent,
+            size=FONT.h2, 
+            weight=ft.FontWeight.W_700
+        ),
     )
 
     profile_card = T.card(
         accent=True,
         padding=18,
         content=ft.Row(
-            spacing=14, vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            spacing=14, 
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
             controls=[
                 avatar,
                 ft.Column(
-                    spacing=2, expand=True,
+                    spacing=2, 
+                    expand=True,
                     controls=[
                         ft.Text(
                             f"{prenom} {nom}".strip() or "Non connecté",
-                            color=C.text, size=FONT.h3,
+                            color=C.text, 
+                            size=FONT.h3,
                             weight=ft.FontWeight.W_700,
                             max_lines=1,
                             overflow=ft.TextOverflow.ELLIPSIS,
                         ),
                         ft.Text(
                             email or "Aucun compte",
-                            color=C.text_subtle, size=FONT.small,
+                            color=C.text_subtle, 
+                            size=FONT.small,
                             max_lines=1,
                             overflow=ft.TextOverflow.ELLIPSIS,
                         ),
@@ -81,8 +88,8 @@ def build(page: ft.Page) -> ft.View:
             saved = await prefs.get("notifications_enabled")
             notif_switch.value = saved if saved is not None else False
             page.update()
-        except Exception as e:
-            print(f"[settings] load error: {e}")
+        except Exception:
+            pass
 
     page.run_task(load_data)
 
@@ -100,8 +107,7 @@ def build(page: ft.Page) -> ft.View:
             await prefs.set("notifications_enabled", e.control.value)
         except Exception:
             pass
-        page.show_dialog(ft.SnackBar(ft.Text("Préférence sauvegardée"),
-                                     duration=1500))
+        page.show_dialog(ft.SnackBar(ft.Text("Préférence sauvegardée"), duration=1500))
 
     theme_switch.on_change = toggle_theme
     notif_switch.on_change = save_notifications
@@ -114,19 +120,28 @@ def build(page: ft.Page) -> ft.View:
                 vertical_alignment=ft.CrossAxisAlignment.CENTER,
                 controls=[
                     ft.Container(
-                        width=36, height=36,
+                        width=36, 
+                        height=36,
                         border_radius=12,
                         bgcolor=ft.Colors.with_opacity(0.14, C.accent),
                         alignment=ft.Alignment.CENTER,
                         content=ft.Icon(icon, color=C.accent, size=18),
                     ),
                     ft.Column(
-                        spacing=2, expand=True,
+                        spacing=2, 
+                        expand=True,
                         controls=[
-                            ft.Text(title, color=C.text, size=FONT.body,
-                                    weight=ft.FontWeight.W_600),
-                            ft.Text(subtitle, color=C.text_subtle,
-                                    size=FONT.micro),
+                            ft.Text(
+                                title, 
+                                color=C.text, 
+                                size=FONT.body,
+                                weight=ft.FontWeight.W_600
+                            ),
+                            ft.Text(
+                                subtitle, 
+                                color=C.text_subtle,
+                                size=FONT.micro
+                            ),
                         ],
                     ),
                     trailing,
@@ -139,8 +154,12 @@ def build(page: ft.Page) -> ft.View:
         content=ft.Column(
             spacing=0,
             controls=[
-                ft.Text("Préférences", color=C.text_muted,
-                        size=FONT.small, weight=ft.FontWeight.W_600),
+                ft.Text(
+                    "Préférences", 
+                    color=C.text_muted,
+                    size=FONT.small, 
+                    weight=ft.FontWeight.W_600
+                ),
                 pref_row(
                     ft.Icons.DARK_MODE_OUTLINED,
                     "Mode sombre", "Apparence visuelle",
@@ -154,6 +173,68 @@ def build(page: ft.Page) -> ft.View:
                 ),
             ],
         ),
+    )
+
+    # ---- Gouvernance & Sécurité ----
+    def open_logs_dialog(e):
+        logs = get_logs()
+        logs_col = ft.Column(spacing=8, scroll=ft.ScrollMode.AUTO, expand=True)
+        
+        if not logs:
+            logs_col.controls.append(ft.Text("Aucun log enregistré.", color=C.text_subtle, italic=True))
+        else:
+            for log in logs:
+                logs_col.controls.append(
+                    ft.Container(
+                        padding=10,
+                        border_radius=8,
+                        bgcolor=C.bg_subtle,
+                        content=ft.Column(spacing=2, controls=[
+                            ft.Row(
+                                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                                controls=[
+                                    T.accent_chip(log["category"], color=C.accent),
+                                    ft.Text(log["timestamp"].replace("T", " "), color=C.text_subtle, size=FONT.micro)
+                                ]
+                            ),
+                            ft.Text(log["description"], color=C.text, size=FONT.small)
+                        ])
+                    )
+                )
+
+        dialog = ft.AlertDialog(
+            modal=False,
+            bgcolor=C.bg_elevated,
+            title=ft.Text("Journal des actions (Gouvernance)", color=C.text, weight=ft.FontWeight.W_700, size=FONT.h3),
+            content=ft.Container(
+                width=420, height=400,
+                content=logs_col
+            ),
+            actions=[ft.TextButton("Fermer", on_click=lambda _e: page.pop_dialog())],
+        )
+        page.show_dialog(dialog)
+
+    btn_logs = T.pill_button("Consulter le journal", icon=ft.Icons.SHIELD_OUTLINED, on_click=open_logs_dialog, primary=False)
+
+    gouvernance_card = T.card(
+        padding=18,
+        content=ft.Column(
+            spacing=14,
+            controls=[
+                ft.Text(
+                    "Gouvernance & Sécurité", 
+                    color=C.text_muted,
+                    size=FONT.small, 
+                    weight=ft.FontWeight.W_600
+                ),
+                ft.Text(
+                    "Traçabilité complète des actions de l'Agent IA (envois d'emails, modifications agenda).",
+                    color=C.text_subtle,
+                    size=FONT.small
+                ),
+                btn_logs
+            ]
+        )
     )
 
     # ---- Logout ----
@@ -210,8 +291,12 @@ def build(page: ft.Page) -> ft.View:
         content=ft.Column(
             spacing=14,
             controls=[
-                ft.Text("Compte", color=C.text_muted,
-                        size=FONT.small, weight=ft.FontWeight.W_600),
+                ft.Text(
+                    "Compte", 
+                    color=C.text_muted,
+                    size=FONT.small, 
+                    weight=ft.FontWeight.W_600
+                ),
                 ft.Container(
                     bgcolor=ft.Colors.with_opacity(0.14, C.danger),
                     border_radius=999,
@@ -222,11 +307,17 @@ def build(page: ft.Page) -> ft.View:
                         alignment=ft.MainAxisAlignment.CENTER,
                         spacing=8,
                         controls=[
-                            ft.Icon(ft.Icons.LOGOUT_ROUNDED,
-                                    color=C.danger, size=16),
-                            ft.Text("Se déconnecter", color=C.danger,
-                                    weight=ft.FontWeight.W_700,
-                                    size=FONT.body),
+                            ft.Icon(
+                                ft.Icons.LOGOUT_ROUNDED,
+                                color=C.danger, 
+                                size=16
+                            ),
+                            ft.Text(
+                                "Se déconnecter", 
+                                color=C.danger,
+                                weight=ft.FontWeight.W_700,
+                                size=FONT.body
+                            ),
                         ],
                     ),
                 ),
@@ -235,11 +326,13 @@ def build(page: ft.Page) -> ft.View:
     )
 
     view = ft.View(
-        route="/settings", padding=0, bgcolor=C.bg,
+        route="/settings", 
+        padding=0, 
+        bgcolor=C.bg,
         scroll=ft.ScrollMode.AUTO,
     )
-    view.navigation_bar = build_navbar(
-        page, selected=nav_index_for("/settings"))
+    
+    view.navigation_bar = build_navbar(page, selected=nav_index_for("/settings"))
     view.appbar = T.appbar("Paramètres", back_route="/", page=page)
 
     view.controls = [
@@ -250,13 +343,16 @@ def build(page: ft.Page) -> ft.View:
                 controls=[
                     profile_card,
                     preferences_card,
+                    gouvernance_card,
                     logout_card,
                     ft.Container(
                         margin=ft.Margin(left=0, top=30, right=0, bottom=0),
                         alignment=ft.Alignment.CENTER,
-                        content=ft.Text("INPT APP — v1.0",
-                                        size=FONT.micro,
-                                        color=C.text_subtle),
+                        content=ft.Text(
+                            "INPT APP — v1.0",
+                            size=FONT.micro,
+                            color=C.text_subtle
+                        ),
                     ),
                 ],
             ),

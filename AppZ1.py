@@ -1,6 +1,7 @@
 import flet as ft 
 from vues import home, mails, settings, AIassistant, rdv, calendrier, mailtotal, bourse, pdf, business, erp
 from services.google_auth import get_credentials, get_user_info
+from services.scheduler_service import start_scheduler
 
 ROUTE_BUILDERS = {
     "/": home.build,
@@ -31,11 +32,17 @@ ROUTE_STACKS = {
 }
 
 def main(page: ft.Page):
+    
+    # Démarrage de la tâche de fond (relances automatiques)
+    start_scheduler()
+
     # JE MET CA EN COMMENTAIRE POUR METTRE LA CONNEXION GOOGLE EN PAUSE
     creds = get_credentials()          
     user = get_user_info(creds)                  
+    
     print("Connecté :", creds.valid)
     print(f"Connecté : {user['prenom']} {user['nom']} ({user['email']})")
+    
     page.data = user
     page.title = "INPT APP"
     page.fonts = {"PROSTO": "/fonts/ProstoOne-Regular.ttf"}
