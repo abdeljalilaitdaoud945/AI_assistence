@@ -1,61 +1,67 @@
-import flet as ft
+"""
+Vue Rendez-vous — dashboard journée + bouton "agenda complet".
+Style Arc cohérent.
+"""
+
 import threading
 from datetime import datetime
-from vues.navbar import build_navbar
+
+import flet as ft
+
+from vues import theme as T
+from vues.theme import C, FONT
+from vues.navbar import build_navbar, nav_index_for
 from services.calendar_service import get_today_events
 
+
 def build(page: ft.Page) -> ft.View:
-    sidebar_visible = True
 
-    ia_content = ft.Column([
-        ft.Text("Copilote IA", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLUE_800),
-        ft.Divider(),
-        ft.Text("Points Critiques", weight=ft.FontWeight.W_600),
-        ft.Container(
-            content=ft.Text("📉 Baisse de marge détectée sur la zone Nord. À challenger.", size=12),
-            padding=10, bgcolor=ft.Colors.ORANGE_50, border_radius=10
-        ),
-        ft.Text("Actions en retard", weight=ft.FontWeight.W_600),
-        ft.ListTile(
-            leading=ft.Icon(ft.Icons.WARNING, color=ft.Colors.RED),
-            title=ft.Text("Devis Client X", size=12),
-            subtitle=ft.Text("Échéance dépassée de 2j", size=10),
-        ),
-        ft.ElevatedButton(
-            "Générer PV Automatique", 
-            icon=ft.Icons.AUTO_AWESOME,
-            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8))
-        )
-    ], spacing=15, scroll=ft.ScrollMode.AUTO)
-
-    sidebar = ft.Container(
-        content=ia_content,
-        width=300,
-        padding=20,
-        bgcolor=ft.Colors.GREY_200, 
-        visible=sidebar_visible,
-        animate=ft.Animation(400, ft.AnimationCurve.DECELERATE),
+    dashboard_column = ft.Column(
+        spacing=12, expand=True, scroll=ft.ScrollMode.AUTO,
     )
+    loading = ft.ProgressRing(visible=False, width=14, height=14,
+                              stroke_width=2, color=C.accent)
 
     async def open_calendar(e):
         await page.push_route("/calendrier")
 
-    btn_open_calendar = ft.Container(
-        content=ft.ElevatedButton(
-            content=ft.Row([
-                ft.Icon(ft.Icons.CALENDAR_MONTH, color=ft.Colors.WHITE),
-                ft.Text("OUVRIR MON AGENDA COMPLET", weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
-            ], alignment=ft.MainAxisAlignment.CENTER),
-            bgcolor=ft.Colors.BLUE_700,
-            height=60,
-            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10)),
-            on_click=open_calendar 
-        ),
-        margin=ft.Margin(left=0, top=0, right=0, bottom=20)
-    )
-
-    dashboard_column = ft.Column([], expand=True, scroll=ft.ScrollMode.AUTO)
-    loading = ft.ProgressRing(visible=False, width=20, height=20, color=ft.Colors.BLUE_700)
+    def event_card(time_str, summary, color):
+        return T.card(
+            accent=True,
+            padding=14,
+            content=ft.Row(
+                spacing=12,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                    ft.Container(
+                        width=44,
+                        content=ft.Text(
+                            time_str.split(" ")[0] if " " in time_str else time_str,
+                            color=C.accent, size=FONT.body,
+                            weight=ft.FontWeight.W_700,
+                            text_align=ft.TextAlign.CENTER,
+                        ),
+                    ),
+                    ft.Container(
+                        width=1, height=32,
+                        bgcolor=C.border,
+                    ),
+                    ft.Column(
+                        spacing=2, expand=True,
+                        controls=[
+                            ft.Text(summary, color=C.text, size=FONT.body,
+                                    weight=ft.FontWeight.W_600,
+                                    max_lines=1,
+                                    overflow=ft.TextOverflow.ELLIPSIS),
+                            ft.Text(time_str, color=C.text_subtle,
+                                    size=FONT.micro),
+                        ],
+                    ),
+                    ft.Icon(ft.Icons.CHEVRON_RIGHT_ROUNDED,
+                            color=C.text_subtle, size=18),
+                ],
+            ),
+        )
 
     def load_real_events():
         loading.visible = True
@@ -63,150 +69,193 @@ def build(page: ft.Page) -> ft.View:
 
         def fetch():
             dashboard_column.controls.clear()
-            dashboard_column.controls.append(btn_open_calendar)
-            
+
+            # ---- En-tête de section ----
             today_str = datetime.now().strftime("%A %d %B").capitalize()
             dashboard_column.controls.append(
-                ft.Row([
-                    ft.Column([
-                        ft.Text("Aperçu de la journée", size=24, weight=ft.FontWeight.BOLD),
-                        ft.Text(today_str, color=ft.Colors.GREY_600),
-                    ], spacing=0),
-                    loading
-                ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
+                ft.Column(
+                    spacing=2,
+                    controls=[
+                        ft.Text("Aujourd'hui", size=FONT.display,
+                                color=C.text, weight=ft.FontWeight.W_700),
+                        ft.Text(today_str, color=C.text_subtle,
+                                size=FONT.body),
+                    ],
+                )
             )
-            dashboard_column.controls.append(ft.Divider(height=20, color=ft.Colors.TRANSPARENT))
 
+            # ---- Bouton "Agenda complet" ----
+            dashboard_column.controls.append(
+                ft.Container(
+                    margin=ft.Margin(left=0, top=8, right=0, bottom=8),
+                    content=T.card(
+                        on_click=open_calendar,
+                        accent=True,
+                        padding=16,
+                        content=ft.Row(
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                            controls=[
+                                ft.Row(
+                                    spacing=12,
+                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                    controls=[
+                                        ft.Container(
+                                            width=36, height=36,
+                                            border_radius=12,
+                                            bgcolor=ft.Colors.with_opacity(0.18, C.accent),
+                                            alignment=ft.Alignment.CENTER,
+                                            content=ft.Icon(
+                                                ft.Icons.CALENDAR_MONTH_ROUNDED,
+                                                color=C.accent, size=20,
+                                            ),
+                                        ),
+                                        ft.Column(
+                                            spacing=2,
+                                            controls=[
+                                                ft.Text("Agenda complet",
+                                                        color=C.text,
+                                                        size=FONT.body,
+                                                        weight=ft.FontWeight.W_600),
+                                                ft.Text("Vue mensuelle",
+                                                        color=C.text_subtle,
+                                                        size=FONT.micro),
+                                            ],
+                                        ),
+                                    ],
+                                ),
+                                ft.Icon(ft.Icons.ARROW_FORWARD_IOS_ROUNDED,
+                                        color=C.text_subtle, size=14),
+                            ],
+                        ),
+                    ),
+                )
+            )
+
+            # ---- Section "Programme du jour" ----
+            dashboard_column.controls.append(
+                ft.Row(
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    controls=[
+                        ft.Text("Programme du jour", size=FONT.h2,
+                                color=C.text, weight=ft.FontWeight.W_700),
+                        loading,
+                    ],
+                )
+            )
+
+            # ---- Fetch real events ----
             try:
                 events = get_today_events()
-                now = datetime.now().astimezone() 
-                
+                now = datetime.now().astimezone()
+
                 if not events:
                     dashboard_column.controls.append(
-                        ft.Text("Aucun événement prévu aujourd'hui.", italic=True, color=ft.Colors.GREY_500)
+                        T.card(
+                            content=ft.Column(
+                                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                spacing=10,
+                                controls=[
+                                    ft.Container(height=4),
+                                    ft.Icon(ft.Icons.EVENT_BUSY_OUTLINED,
+                                            color=C.text_subtle, size=26),
+                                    ft.Text("Aucun événement aujourd'hui.",
+                                            color=C.text_subtle, italic=True,
+                                            size=FONT.small),
+                                    ft.Container(height=4),
+                                ],
+                            ),
+                        )
                     )
                 else:
-                    colors = [ft.Colors.BLUE, ft.Colors.RED, ft.Colors.GREEN, ft.Colors.ORANGE, ft.Colors.PURPLE]
                     upcoming_count = 0
-                    
                     for i, e in enumerate(events):
-                        raw_start = e["start"].get("dateTime", e["start"].get("date", ""))
-                        raw_end = e["end"].get("dateTime", e["end"].get("date", ""))
-                        
+                        raw_start = e["start"].get("dateTime",
+                                                   e["start"].get("date", ""))
+                        raw_end = e["end"].get("dateTime",
+                                               e["end"].get("date", ""))
                         try:
-                            dt_start = datetime.fromisoformat(raw_start.replace("Z", "+00:00")).astimezone()
-                            dt_end = datetime.fromisoformat(raw_end.replace("Z", "+00:00")).astimezone()
-                            
+                            dt_start = datetime.fromisoformat(
+                                raw_start.replace("Z", "+00:00")).astimezone()
+                            dt_end = datetime.fromisoformat(
+                                raw_end.replace("Z", "+00:00")).astimezone()
                             if dt_end < now:
                                 continue
-                                
-                            time_str = f"{dt_start.strftime('%H:%M')} - {dt_end.strftime('%H:%M')}"
+                            time_str = (f"{dt_start.strftime('%H:%M')} – "
+                                        f"{dt_end.strftime('%H:%M')}")
                         except Exception:
                             time_str = "Toute la journée"
-                            
+
                         upcoming_count += 1
                         summary = e.get("summary", "Sans titre")
-                        color = colors[i % len(colors)]
-                        
                         dashboard_column.controls.append(
-                            ft.Card(
-                                content=ft.Container(
-                                    padding=15,
-                                    content=ft.Column([
-                                        ft.Row([
-                                            ft.Icon(ft.Icons.CIRCLE, color=color, size=12),
-                                            ft.Text(time_str, size=12, weight=ft.FontWeight.W_500),
-                                        ]),
-                                        ft.Text(summary, weight=ft.FontWeight.BOLD, size=16),
-                                        ft.Text("Type: Google Calendar", size=12, color=ft.Colors.GREY_700),
-                                    ], spacing=5)
-                                )
-                            )
+                            event_card(time_str, summary, C.accent)
                         )
-                        
+
                     if upcoming_count == 0:
                         dashboard_column.controls.append(
-                            ft.Container(
-                                padding=20,
-                                alignment=ft.Alignment(0, 0),
-                                content=ft.Text("🎉 Journée terminée ! Plus aucun rendez-vous à venir.", 
-                                                color=ft.Colors.GREEN_700, weight=ft.FontWeight.BOLD)
+                            T.card(
+                                content=ft.Row(
+                                    spacing=10,
+                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                    controls=[
+                                        ft.Icon(ft.Icons.CHECK_CIRCLE_OUTLINE,
+                                                color=C.success, size=20),
+                                        ft.Text(
+                                            "Journée terminée. Plus aucun RDV à venir.",
+                                            color=C.success, size=FONT.small,
+                                            weight=ft.FontWeight.W_600,
+                                        ),
+                                    ],
+                                ),
                             )
                         )
 
             except Exception as ex:
                 dashboard_column.controls.append(
-                    ft.Text(f"Erreur de synchronisation Google : {ex}", color=ft.Colors.RED)
+                    T.card(content=ft.Text(
+                        f"Erreur de synchronisation : {ex}",
+                        color=C.danger, size=FONT.small,
+                    ))
                 )
-            
+
             loading.visible = False
             page.update()
 
-        threading.Thread(target=fetch).start()
+        threading.Thread(target=fetch, daemon=True).start()
 
     load_real_events()
-
-    def toggle_sidebar(e):
-        nonlocal sidebar_visible
-        sidebar_visible = not sidebar_visible
-        sidebar.visible = sidebar_visible
-        toggle_btn.icon = ft.Icons.CHEVRON_RIGHT if sidebar_visible else ft.Icons.CHEVRON_LEFT
-        page.update()
-
-    toggle_btn = ft.IconButton(
-        icon=ft.Icons.CHEVRON_RIGHT,
-        on_click=toggle_sidebar,
-        tooltip="Afficher/Masquer l'Assistant IA"
-    )
-
-    def handle_checked_item_click(e):
-        e.control.checked = not e.control.checked
-        page.update()
 
     async def push_settings(e):
         await page.push_route("/settings")
 
-    view = ft.View(route="/rdv", padding=0)
+    actions = [
+        ft.IconButton(
+            icon=ft.Icons.REFRESH_ROUNDED,
+            icon_color=C.text_muted, icon_size=18,
+            tooltip="Rafraîchir",
+            on_click=lambda e: load_real_events(),
+        ),
+        ft.IconButton(
+            icon=ft.Icons.TUNE_ROUNDED,
+            icon_color=C.text_muted, icon_size=18,
+            tooltip="Paramètres",
+            on_click=push_settings,
+        ),
+        ft.Container(width=8),
+    ]
 
-    route_indexes = {"/": 0, "/mails": 1, "/rdv": 2}
-    current_index = route_indexes.get(page.route, 2)
-    view.navigation_bar = build_navbar(page, current_index)
-
-    view.appbar = ft.AppBar(
-        leading=ft.Icon(ft.Icons.APARTMENT_SHARP),
-        leading_width=40,
-        title=ft.Text("Chef d'Orchestre", font_family="PROSTO"),
-        center_title=False,
-        bgcolor=ft.Colors.BLUE_300,
-        actions=[
-            toggle_btn, 
-            ft.IconButton(ft.Icons.WB_SUNNY_OUTLINED),
-            ft.IconButton(ft.Icons.FILTER_3),
-            ft.PopupMenuButton(
-                items=[
-                    ft.PopupMenuItem(
-                        content=ft.Row([
-                            ft.Icon(ft.Icons.SETTINGS),
-                            ft.Text("Paramètres"),
-                        ]),
-                        on_click=push_settings,
-                    ),
-                    ft.PopupMenuItem(content=ft.Text("Item 1")),
-                    ft.PopupMenuItem(
-                        content=ft.Text("Checked item"),
-                        checked=False,
-                        on_click=handle_checked_item_click,
-                    ),
-                ]
-            ),
-        ],
+    view = ft.View(
+        route="/rdv", padding=0, bgcolor=C.bg,
     )
+    view.navigation_bar = build_navbar(page, selected=nav_index_for("/rdv"))
+    view.appbar = T.appbar("Rendez-vous", actions=actions)
 
     view.controls = [
-        ft.Row([
-            ft.Container(content=dashboard_column, expand=True, padding=20),
-            sidebar,
-        ], expand=True, spacing=0)
+        ft.Container(
+            padding=ft.Padding(left=20, top=8, right=20, bottom=24),
+            content=dashboard_column,
+        ),
     ]
 
     return view

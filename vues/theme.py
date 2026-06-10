@@ -5,6 +5,7 @@ Design system Arc-inspired — dark sobre + accent indigo/violet
 Usage :
     from vues.theme import C, FONT, card, chip, section_header
     from vues.theme import sparkline, ring_chart, dots_timeline
+    from vues.theme import view_root  # wrapper de page avec ambient bg
 """
 
 import math
@@ -14,42 +15,45 @@ from flet import canvas as cv
 
 
 # =====================================================================
-# PALETTE — Arc Dark inspired
+# PALETTE — Arc Dark inspired (avec plus de présence indigo)
 # =====================================================================
 
 class C:
-    # Surfaces
-    bg            = "#0E0E12"   # fond global
-    bg_elevated   = "#16161D"   # cards
-    bg_subtle     = "#1C1C26"   # inputs, alternatives
-    bg_hover      = "#1F1F2C"
+    # Surfaces (légère teinte indigo, plus chaud que pur noir)
+    bg            = "#0B0B14"   # fond global (très subtile teinte indigo)
+    bg_elevated   = "#171724"   # cards
+    bg_subtle     = "#1F1F2E"   # inputs, alternatives
+    bg_hover      = "#252535"
 
     # Bordures
-    border        = "#26262F"
-    border_subtle = "#1B1B23"
+    border        = "#2E2E42"   # un peu plus marquée
+    border_subtle = "#1F1F2E"
+    border_accent = "#3E3470"   # bordure avec teinte indigo
 
     # Texte
-    text          = "#F4F4F5"
-    text_muted    = "#A1A1AA"
-    text_subtle   = "#71717A"
+    text          = "#F5F5F7"
+    text_muted    = "#A1A1B5"   # un peu plus chaud
+    text_subtle   = "#71718A"
 
-    # Accent Arc-like (violet/indigo)
-    accent        = "#A78BFA"   # violet doux (primary)
-    accent_strong = "#7C3AED"   # violet profond
-    accent_soft   = "#C4B5FD"   # violet pâle pour highlights
+    # Accent Arc-like (violet/indigo plus saturé et présent)
+    accent        = "#A78BFA"   # primary
+    accent_strong = "#7C3AED"   # version saturée
+    accent_soft   = "#C4B5FD"   # version pâle
+    accent_glow   = "#6D28D9"   # version profonde pour les fonds
 
-    # Sémantiques (sobres, pas criardes)
+    # Sémantiques sobres
     success       = "#34D399"
     warning       = "#FBBF24"
     danger        = "#F87171"
     info          = "#60A5FA"
 
-    # Pour les gradients ambient
-    grad_a        = "#1E1B4B"   # indigo nuit
-    grad_b        = "#0E0E12"   # noir profond
+    # Gradients ambient (utilisés en haut de page)
+    grad_top_a    = "#2E1065"   # violet/indigo profond
+    grad_top_b    = "#1E1B4B"   # indigo nuit
+    grad_bottom   = "#0B0B14"   # fond
 
 
-# Tailles typographiques Arc-like (très généreuses)
+# Tailles typographiques
 class FONT:
     display = 32
     h1      = 24
@@ -65,8 +69,25 @@ class FONT:
 # =====================================================================
 
 def card(content, padding=18, radius=20, bg=None, border=True,
-         on_click=None, shadow=True, expand=False):
-    """Card sobre style Arc. Bordure très discrète + radius marqué."""
+         on_click=None, shadow=True, expand=False, accent=False):
+    """Card sobre style Arc. Si accent=True, bordure gauche violet visible."""
+    if accent:
+        border_obj = ft.Border(
+            top=ft.BorderSide(1, C.border),
+            bottom=ft.BorderSide(1, C.border),
+            left=ft.BorderSide(3, C.accent),
+            right=ft.BorderSide(1, C.border),
+        )
+    elif border:
+        border_obj = ft.Border(
+            top=ft.BorderSide(1, C.border),
+            bottom=ft.BorderSide(1, C.border),
+            left=ft.BorderSide(1, C.border),
+            right=ft.BorderSide(1, C.border),
+        )
+    else:
+        border_obj = None
+
     return ft.Container(
         content=content,
         padding=padding,
@@ -75,12 +96,7 @@ def card(content, padding=18, radius=20, bg=None, border=True,
         ink=on_click is not None,
         on_click=on_click,
         expand=expand,
-        border=ft.Border(
-            top=ft.BorderSide(1, C.border),
-            bottom=ft.BorderSide(1, C.border),
-            left=ft.BorderSide(1, C.border),
-            right=ft.BorderSide(1, C.border),
-        ) if border else None,
+        border=border_obj,
         shadow=ft.BoxShadow(
             blur_radius=24,
             spread_radius=0,
@@ -474,8 +490,41 @@ def ambient_bg(child, height=None):
         gradient=ft.LinearGradient(
             begin=ft.Alignment.TOP_LEFT,
             end=ft.Alignment.BOTTOM_RIGHT,
-            colors=[C.grad_a, C.grad_b],
+            colors=[C.grad_top_a, C.grad_bottom],
             stops=[0.0, 0.6],
         ),
         content=child,
+    )
+
+
+def page_root(content):
+    """
+    Wrapper de toute une vue : pose un grand halo violet/indigo très diffus
+    en haut, puis le fond se fond vers le noir-indigo bg.
+    Utilise un Stack avec un overlay gradient absolu pour l'ambiance Arc.
+    """
+    halo = ft.Container(
+        height=420,
+        gradient=ft.LinearGradient(
+            begin=ft.Alignment.TOP_CENTER,
+            end=ft.Alignment.BOTTOM_CENTER,
+            colors=[
+                ft.Colors.with_opacity(0.28, C.accent_glow),
+                ft.Colors.with_opacity(0.06, C.accent_glow),
+                ft.Colors.with_opacity(0.0, C.bg),
+            ],
+            stops=[0.0, 0.5, 1.0],
+        ),
+    )
+    return ft.Stack(
+        expand=True,
+        controls=[
+            # halo en haut
+            ft.Container(
+                left=0, right=0, top=0,
+                content=halo,
+            ),
+            # contenu réel par-dessus
+            content,
+        ],
     )

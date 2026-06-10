@@ -1,102 +1,97 @@
-import flet as ft
+"""
+Vue Mailtotal — historique complet, même style que mails.py.
+"""
+
 import threading
+
+import flet as ft
+
+from vues import theme as T
+from vues.theme import C, FONT
+from vues.navbar import build_navbar, nav_index_for
+from vues.mails import _mail_card  # réutilise le même rendu
 from services.email_service import get_emails_data
+
 
 def build(page: ft.Page) -> ft.View:
 
-    loading = ft.ProgressRing(visible=True, width=30, height=30, color="#38BDF8", stroke_width=3)
-    all_emails_column = ft.Column(spacing=10, expand=True, scroll=ft.ScrollMode.AUTO)
+    loading = ft.ProgressRing(visible=True, width=18, height=18,
+                              color=C.accent, stroke_width=2)
+    emails_col = ft.Column(spacing=10, expand=True)
 
     def fetch_all_mails():
         try:
             emails = get_emails_data(limit=30, unread_only=False)
-            all_emails_column.controls.clear()
+            emails_col.controls.clear()
             loading.visible = False
-
             if not emails:
-                all_emails_column.controls.append(ft.Text("Boîte de réception vide.", color=ft.Colors.WHITE))
-            else:
-                for mail in emails:
-                    all_emails_column.controls.append(
-                        ft.Container(
-                            padding=15,
-                            border_radius=10,
-                            bgcolor="#1E293B", 
-                            border=ft.Border(
-                                left=ft.BorderSide(4, "#38BDF8"), 
-                                top=ft.BorderSide(1, "#0F172A"),
-                                right=ft.BorderSide(1, "#0F172A"),
-                                bottom=ft.BorderSide(1, "#0F172A")
-                            ),
-                            shadow=ft.BoxShadow(
-                                blur_radius=5, 
-                                color=ft.Colors.with_opacity(0.15, ft.Colors.BLACK) 
-                            ),
-                            content=ft.Column([
-                                ft.Row([
-                                    ft.Icon(ft.Icons.PERSON, color="#94A3B8", size=16),
-                                    ft.Text(mail["expediteur"], weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE, size=14),
-                                ], alignment=ft.MainAxisAlignment.START),
-                                ft.Text(mail["sujet"], weight=ft.FontWeight.W_600, color=ft.Colors.WHITE, size=15),
-                                ft.Text(mail["snippet"], color=ft.Colors.GREY_400, size=12, max_lines=2),
-                            ], spacing=4)
-                        )
+                emails_col.controls.append(
+                    ft.Container(
+                        padding=24, alignment=ft.Alignment.CENTER,
+                        content=ft.Text("Boîte de réception vide.",
+                                        color=C.text_subtle, italic=True,
+                                        size=FONT.small),
                     )
+                )
+            else:
+                for m in emails:
+                    emails_col.controls.append(_mail_card(m))
             page.update()
         except Exception as e:
             loading.visible = False
-            all_emails_column.controls.clear()
-            all_emails_column.controls.append(ft.Text(f"Erreur Gmail : {e}", color=ft.Colors.RED))
+            emails_col.controls.clear()
+            emails_col.controls.append(
+                ft.Text(f"Erreur Gmail : {e}", color=C.danger,
+                        size=FONT.small)
+            )
             page.update()
 
-    threading.Thread(target=fetch_all_mails).start()
+    threading.Thread(target=fetch_all_mails, daemon=True).start()
 
-    async def go_back(e):
-        await page.push_route("/mails")
-
-    header = ft.Container(
-        padding=15,
-        border_radius=15,
-        bgcolor="#111827",
-        shadow=ft.BoxShadow(blur_radius=15, color=ft.Colors.with_opacity(0.2, ft.Colors.BLACK)),
-        content=ft.Row(
-            [
-                ft.IconButton(
-                    icon=ft.Icons.ARROW_BACK_ROUNDED,
-                    icon_color=ft.Colors.WHITE,
-                    icon_size=20,
-                    on_click=go_back, 
-                ),
-                ft.Text(
-                    "Historique Complet",
-                    size=18,
-                    weight=ft.FontWeight.BOLD,
-                    color=ft.Colors.WHITE,
-                ),
-                loading
-            ],
-            spacing=10,
+    actions = [
+        ft.IconButton(
+            icon=ft.Icons.REFRESH_ROUNDED,
+            icon_color=C.text_muted, icon_size=18,
+            tooltip="Rafraîchir",
+            on_click=lambda e: (
+                loading.__setattr__("visible", True),
+                threading.Thread(target=fetch_all_mails, daemon=True).start(),
+            ),
         ),
-    )
+        ft.Container(width=8),
+    ]
 
-    return ft.View(
-        route="/mailtotal",
-        padding=15,
-        bgcolor="#0B1220", 
-        controls=[
-            ft.Column(
-                [
-                    header, 
-                    ft.Container(
-                        expand=True,
-                        border_radius=20,
-                        bgcolor="#0F172A",
-                        padding=15,
-                        content=all_emails_column
-                    )
-                ],
-                expand=True,
-                spacing=15,
-            )
-        ],
+    view = ft.View(
+        route="/mailtotal", padding=0, bgcolor=C.bg,
+        scroll=ft.ScrollMode.AUTO,
     )
+    view.navigation_bar = build_navbar(
+        page, selected=nav_index_for("/mailtotal"))
+    view.appbar = T.appbar("Tous les mails", back_route="/mails",
+                           page=page, actions=actions)
+
+    view.controls = [
+        ft.Container(
+            padding=ft.Padding(left=20, top=8, right=20, bottom=24),
+            content=ft.Column(
+                spacing=14,
+                controls=[
+                    ft.Column(
+                        spacing=2,
+                        controls=[
+                            ft.Text("Historique", size=FONT.display,
+                                    color=C.text,
+                                    weight=ft.FontWeight.W_700),
+                            ft.Text("Tous tes mails récents", size=FONT.small,
+                                    color=C.text_subtle,
+                                    weight=ft.FontWeight.W_500),
+                        ],
+                    ),
+                    ft.Row([loading], alignment=ft.MainAxisAlignment.START),
+                    emails_col,
+                ],
+            ),
+        ),
+    ]
+
+    return view

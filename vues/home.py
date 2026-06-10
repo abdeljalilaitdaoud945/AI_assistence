@@ -516,18 +516,20 @@ def build(page: ft.Page) -> ft.View:
     view.navigation_bar = build_navbar(page, selected=0)
 
     view.controls = [
-        ft.Container(
-            padding=ft.Padding(left=20, top=8, right=20, bottom=24),
-            content=ft.Column(
-                spacing=18,
-                controls=[
-                    hero,
-                    market_card,
-                    grid,
-                    T.section_header("Prochains rendez-vous"),
-                    next_rdv_col,
-                ],
-            ),
+        T.page_root(
+            ft.Container(
+                padding=ft.Padding(left=20, top=8, right=20, bottom=24),
+                content=ft.Column(
+                    spacing=18,
+                    controls=[
+                        hero,
+                        market_card,
+                        grid,
+                        T.section_header("Prochains rendez-vous"),
+                        next_rdv_col,
+                    ],
+                ),
+            )
         ),
     ]
 
