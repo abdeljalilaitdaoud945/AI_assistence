@@ -1,5 +1,5 @@
 import flet as ft 
-from vues import home, mails, settings, AIassistant, rdv, calendrier, mailtotal, bourse, pdf
+from vues import home, mails, settings, AIassistant, rdv, calendrier, mailtotal, bourse, pdf, business, erp
 from services.google_auth import get_credentials, get_user_info
 
 ROUTE_BUILDERS = {
@@ -12,6 +12,8 @@ ROUTE_BUILDERS = {
     "/mailtotal": mailtotal.build,
     "/bourse": bourse.build,
     "/pdf": pdf.build,
+    "/business": business.build,
+    "/erp": erp.build,
 }
 
 ROUTE_STACKS = {
@@ -24,6 +26,8 @@ ROUTE_STACKS = {
     "/mailtotal": ["/mails", "/mailtotal"],
     "/bourse": ["/", "/bourse"],
     "/pdf": ["/", "/pdf"],
+    "/business": ["/", "/business"],
+    "/erp": ["/", "/erp"],
 }
 
 def main(page: ft.Page):
@@ -48,7 +52,8 @@ def main(page: ft.Page):
     )
 
     async def load_settings():
-        saved_theme = await page.shared_preferences.get("theme_mode")
+        prefs = ft.SharedPreferences()
+        saved_theme = await prefs.get("theme_mode")
         page.theme_mode = ft.ThemeMode.DARK if saved_theme == "dark" else ft.ThemeMode.LIGHT
         page.update()
             

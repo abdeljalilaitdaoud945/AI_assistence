@@ -398,7 +398,7 @@ def build(page: ft.Page) -> ft.View:
 
         if evs or tasks:
             content_holder.controls.append(
-                ft.Container(margin=ft.Margin(left=0, top=4, right=0, bottom=20),
+                ft.Container(margin=ft.Margin(left=0, top=4, right=0, bottom=8),
                              content=T.pill_button(
                                  "Tout valider · Ajouter au calendrier",
                                  icon=ft.Icons.CHECK_ROUNDED,
@@ -407,7 +407,161 @@ def build(page: ft.Page) -> ft.View:
                              ))
             )
 
+        # ---- Actions IA / PV ----
+        content_holder.controls.append(
+            ft.Row(
+                spacing=8,
+                controls=[
+                    T.pill_button(
+                        "Challenge IA",
+                        icon=ft.Icons.PSYCHOLOGY_OUTLINED,
+                        on_click=lambda e: open_challenge_dialog(entry),
+                        primary=False, expand=True,
+                    ),
+                    T.pill_button(
+                        "Envoyer PV",
+                        icon=ft.Icons.SEND_OUTLINED,
+                        on_click=lambda e: open_send_pv_dialog(entry),
+                        primary=False, expand=True,
+                    ),
+                ],
+            )
+        )
+        content_holder.controls.append(ft.Container(height=16))
+
         page.update()
+
+    # =====================================================
+    # Challenge IA
+    # =====================================================
+    def open_challenge_dialog(entry):
+        body_holder = ft.Container(
+            width=380, height=380,
+            alignment=ft.Alignment.CENTER,
+            content=ft.ProgressRing(color=C.accent),
+        )
+        dialog = ft.AlertDialog(
+            modal=False, bgcolor=C.bg_elevated,
+            title=ft.Text("Challenge IA", color=C.text,
+                          weight=ft.FontWeight.W_700, size=FONT.h3),
+            content=body_holder,
+            actions=[ft.TextButton(
+                "Fermer", on_click=lambda _e: page.pop_dialog())],
+        )
+        page.show_dialog(dialog)
+
+        def work():
+            try:
+                from services.meeting_service import challenge_meeting
+                resp = challenge_meeting(entry.get("analysis", {}))
+            except Exception as e:
+                resp = f"Erreur : {e}"
+            body_holder.content = ft.Container(
+                expand=True,
+                content=ft.ListView(
+                    expand=True, spacing=4,
+                    controls=[ft.Text(resp, color=C.text, size=FONT.small,
+                                      selectable=True)],
+                ),
+            )
+            page.update()
+
+        threading.Thread(target=work, daemon=True).start()
+
+    # =====================================================
+    # Envoyer PV
+    # =====================================================
+    def open_send_pv_dialog(entry):
+        an = entry.get("analysis", {})
+        participants_str = ", ".join(an.get("participants", []) or [])
+
+        f_type = ft.TextField(
+            label="Type de réunion", value="Comité de direction",
+            bgcolor=C.bg_subtle, border_color=C.border,
+            focused_border_color=C.accent, color=C.text,
+            label_style=ft.TextStyle(color=C.text_subtle),
+        )
+        f_animateur = ft.TextField(
+            label="Animateur", value="",
+            bgcolor=C.bg_subtle, border_color=C.border,
+            focused_border_color=C.accent, color=C.text,
+            label_style=ft.TextStyle(color=C.text_subtle),
+        )
+        f_emails = ft.TextField(
+            label="Emails des participants (séparés par ,)",
+            value="",
+            bgcolor=C.bg_subtle, border_color=C.border,
+            focused_border_color=C.accent, color=C.text,
+            label_style=ft.TextStyle(color=C.text_subtle),
+            multiline=True, min_lines=2, max_lines=3,
+        )
+        f_sujet = ft.TextField(
+            label="Sujet du mail",
+            value=f"PV — {entry.get('filename', 'Réunion')}",
+            bgcolor=C.bg_subtle, border_color=C.border,
+            focused_border_color=C.accent, color=C.text,
+            label_style=ft.TextStyle(color=C.text_subtle),
+        )
+
+        result_text = ft.Text("", color=C.text_subtle, size=FONT.micro)
+        ring = ft.ProgressRing(visible=False, width=14, height=14,
+                               color=C.accent, stroke_width=2)
+
+        def _send(e):
+            emails = [x.strip() for x in (f_emails.value or "").replace(";", ",").split(",")
+                      if x.strip()]
+            if not emails:
+                result_text.value = "❌ Aucun email valide."
+                page.update()
+                return
+            ring.visible = True
+            result_text.value = "Envoi en cours…"
+            page.update()
+
+            def work():
+                try:
+                    from services.meeting_service import (
+                        generate_pv_html, send_pv_to_participants)
+                    html = generate_pv_html(
+                        an, type_reunion=f_type.value or "Réunion",
+                        animateur=f_animateur.value or "—",
+                    )
+                    res = send_pv_to_participants(
+                        html, emails, subject=f_sujet.value or "PV")
+                    result_text.value = res
+                except Exception as ex:
+                    result_text.value = f"Erreur : {ex}"
+                ring.visible = False
+                page.update()
+
+            threading.Thread(target=work, daemon=True).start()
+
+        dialog = ft.AlertDialog(
+            modal=False, bgcolor=C.bg_elevated,
+            title=ft.Text("Envoyer le PV", color=C.text,
+                          weight=ft.FontWeight.W_700, size=FONT.h3),
+            content=ft.Container(
+                width=380,
+                content=ft.Column(
+                    spacing=10, tight=True,
+                    controls=[
+                        f_type, f_animateur, f_sujet, f_emails,
+                        *([ft.Text(f"Participants détectés : {participants_str}",
+                                   color=C.text_subtle, size=FONT.micro,
+                                   italic=True)]
+                          if participants_str else []),
+                        ft.Container(height=4),
+                        ft.Row([ring, result_text], spacing=8),
+                    ],
+                ),
+            ),
+            actions=[
+                ft.TextButton("Annuler",
+                              on_click=lambda _e: page.pop_dialog()),
+                ft.TextButton("Envoyer", on_click=_send),
+            ],
+        )
+        page.show_dialog(dialog)
 
     # =====================================================
     # Validation -> Calendrier

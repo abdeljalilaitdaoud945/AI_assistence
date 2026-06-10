@@ -18,12 +18,16 @@ from services.email_service import (
 from services.stock_service import (
     get_stock_price_text,
     get_market_summary_text,
+    get_market_stocks_text,
     search_symbol_text,
     compare_stocks_text,
 )
 
 # Import service PDF
 from services.pdf_history import get_pdf_history_text
+
+# Import service ERP
+from services.erp_service import get_erp_summary_text
 
 mcp = FastMCP(name="InptApp2")
 
@@ -80,6 +84,11 @@ def mcp_get_market_summary() -> str:
     return get_market_summary_text()
 
 @mcp.tool()
+def mcp_get_market_stocks(market_id: str) -> str:
+    """Cotations d'un marché complet. market_id : 'ma' (Casablanca), 'us' (Wall Street), 'fr' (Paris), 'sa' (Tadawul), 'crypto'."""
+    return get_market_stocks_text(market_id)
+
+@mcp.tool()
 def mcp_search_symbol(query: str) -> str:
     """Recherche le symbole boursier d'une entreprise par son nom (ex: 'Apple' -> AAPL)."""
     return search_symbol_text(query)
@@ -97,6 +106,15 @@ def mcp_compare_stocks(symbols: list) -> str:
 def mcp_get_pdf_history(limit: int = 10) -> str:
     """Renvoie la liste des derniers comptes-rendus de réunion analysés (résumé, nb RDV / tâches)."""
     return get_pdf_history_text(limit)
+
+# ==========================================
+# 🏢 OUTILS ERP / SI
+# ==========================================
+
+@mcp.tool()
+def mcp_get_erp_summary() -> str:
+    """Renvoie la synthèse des performances du SI / ERP (CA, marge, alertes et projets en retard)."""
+    return get_erp_summary_text()
 
 if __name__ == "__main__":
     mcp.run()

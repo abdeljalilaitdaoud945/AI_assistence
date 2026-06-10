@@ -1,45 +1,126 @@
 """
-Service Bourse — données en temps (quasi) réel via yfinance.
-Gratuit, pas de clé API requise.
+Service Bourse — yfinance, version enrichie.
 
-Symboles utiles :
-    US      : ^GSPC (S&P500), ^IXIC (Nasdaq), ^DJI (Dow Jones)
-    EU      : ^FCHI (CAC40), ^GDAXI (DAX), ^FTSE (FTSE100)
-    Crypto  : BTC-USD, ETH-USD, SOL-USD
-    Actions : AAPL, MSFT, TSLA, GOOGL, NVDA, LVMH.PA, MC.PA...
+Fusion :
+  • dataclass StockQuote complet (52 sem high/low, market_cap, PE, dividend, beta…)
+  • catalogue MARKETS (Casablanca / Wall Street / Paris / Tadawul / custom)
+  • fetch_history avec OHLCV complet
+  • fmt_number pour grands chiffres
+  • cache TTL 30s
+  • rétrocompat : get_stock_data / get_stock_history / get_market_indices /
+    search_symbol et les wrappers Gemini sont conservés.
 
-Les fonctions `*_text` retournent du texte brut destiné à Gemini.
-Les fonctions `*_data` retournent des dicts/lists pour l'UI Flet.
+Pas de clé API requise.
 """
 
+import math
 import time
+from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Optional
 
 import yfinance as yf
 
-# ---- Cache simple pour éviter de spammer Yahoo (TTL 30s) -----------------
-_CACHE: dict = {}
-_TTL_SECONDS = 30
+
+# =====================================================================
+#  CATALOGUE DES MARCHÉS — organisé pour l'app
+# =====================================================================
+
+MARKETS = {
+    "ma": {
+        "id": "ma",
+        "name": "Casablanca",
+        "flag": "🇲🇦",
+        "category": "MA",
+        "symbols": {
+            "ATW.CS": "Attijariwafa Bank",
+            "IAM.CS": "Maroc Telecom",
+            "BCP.CS": "Banque Centrale Populaire",
+            "BOA.CS": "Bank of Africa",
+            "LHM.CS": "LafargeHolcim Maroc",
+            "CSR.CS": "Cosumar",
+            "MNG.CS": "Managem",
+            "CIH.CS": "CIH Bank",
+            "HPS.CS": "HPS",
+            "WAA.CS": "Wafa Assurance",
+            "TMA.CS": "Total Maroc",
+            "ADH.CS": "Addoha",
+            "ALM.CS": "Aluminium du Maroc",
+            "SAH.CS": "Saham Assurance",
+            "SNP.CS": "Sonasid",
+        },
+    },
+    "us": {
+        "id": "us",
+        "name": "Wall Street",
+        "flag": "🇺🇸",
+        "category": "US",
+        "symbols": {
+            "AAPL":  "Apple",
+            "MSFT":  "Microsoft",
+            "GOOGL": "Alphabet",
+            "AMZN":  "Amazon",
+            "TSLA":  "Tesla",
+            "META":  "Meta Platforms",
+            "NVDA":  "NVIDIA",
+            "BRK-B": "Berkshire Hathaway",
+            "JPM":   "JPMorgan",
+            "JNJ":   "Johnson & Johnson",
+        },
+    },
+    "fr": {
+        "id": "fr",
+        "name": "Paris",
+        "flag": "🇫🇷",
+        "category": "EU",
+        "symbols": {
+            "MC.PA":  "LVMH",
+            "TTE.PA": "TotalEnergies",
+            "SAN.PA": "Sanofi",
+            "AIR.PA": "Airbus",
+            "BNP.PA": "BNP Paribas",
+            "OR.PA":  "L'Oréal",
+            "SU.PA":  "Schneider Electric",
+            "DG.PA":  "Vinci",
+            "ACA.PA": "Crédit Agricole",
+            "GLE.PA": "Société Générale",
+        },
+    },
+    "sa": {
+        "id": "sa",
+        "name": "Tadawul",
+        "flag": "🇸🇦",
+        "category": "SA",
+        "symbols": {
+            "2222.SR": "Saudi Aramco",
+            "1180.SR": "Al Rajhi Bank",
+            "2010.SR": "SABIC",
+            "7010.SR": "STC",
+            "2350.SR": "Saudi Kayan",
+            "4030.SR": "Maaden",
+            "2050.SR": "SAVOLA",
+            "4200.SR": "Saudi Tadawul Group",
+        },
+    },
+    "crypto": {
+        "id": "crypto",
+        "name": "Cryptos",
+        "flag": "₿",
+        "category": "Crypto",
+        "symbols": {
+            "BTC-USD": "Bitcoin",
+            "ETH-USD": "Ethereum",
+            "SOL-USD": "Solana",
+            "BNB-USD": "BNB",
+            "XRP-USD": "XRP",
+            "ADA-USD": "Cardano",
+        },
+    },
+}
 
 
-def _cache_get(key: str):
-    entry = _CACHE.get(key)
-    if entry is None:
-        return None
-    ts, value = entry
-    if time.time() - ts > _TTL_SECONDS:
-        _CACHE.pop(key, None)
-        return None
-    return value
-
-
-def _cache_set(key: str, value):
-    _CACHE[key] = (time.time(), value)
-
-
-# ---- Catalogue des marchés par défaut ------------------------------------
+# Indices par défaut pour la page d'accueil et résumé marché
 DEFAULT_INDICES = [
-    # (symbole yahoo, nom affiché, catégorie)
     ("^GSPC",   "S&P 500",     "US"),
     ("^IXIC",   "Nasdaq",      "US"),
     ("^DJI",    "Dow Jones",   "US"),
@@ -48,164 +129,363 @@ DEFAULT_INDICES = [
     ("^FTSE",   "FTSE 100",    "EU"),
     ("BTC-USD", "Bitcoin",     "Crypto"),
     ("ETH-USD", "Ethereum",    "Crypto"),
-    ("SOL-USD", "Solana",      "Crypto"),
 ]
 
 
-# =========================================================================
-# Fonctions bas niveau (data brute)
-# =========================================================================
+# =====================================================================
+#  DATACLASS
+# =====================================================================
 
-def _safe_attr(obj, name, default=None):
-    """Accès défensif à un attribut ou clé sur fast_info qui change selon les versions."""
+@dataclass
+class StockQuote:
+    """Cotation enrichie d'une action / indice / crypto."""
+    symbol:         str
+    name:           str
+    price:          float
+    previous_close: float
+    open_price:     float = 0.0
+    day_high:       float = 0.0
+    day_low:        float = 0.0
+    week52_high:    float = 0.0
+    week52_low:     float = 0.0
+    volume:         int = 0
+    avg_volume:     int = 0
+    market_cap:     Optional[float] = None
+    pe_ratio:       Optional[float] = None
+    eps:            Optional[float] = None
+    dividend_yield: Optional[float] = None
+    beta:           Optional[float] = None
+    sector:         str = "—"
+    currency:       str = "USD"
+    exchange:       str = "—"
+    error:          Optional[str] = None
+    timestamp: str = field(
+        default_factory=lambda: datetime.now().strftime("%H:%M:%S")
+    )
+
+    @property
+    def change(self) -> float:
+        return round(self.price - self.previous_close, 4)
+
+    @property
+    def change_pct(self) -> float:
+        if not self.previous_close:
+            return 0.0
+        return round((self.change / self.previous_close) * 100, 2)
+
+    @property
+    def is_up(self) -> bool:
+        return self.change >= 0
+
+    @property
+    def week52_position_pct(self) -> float:
+        rng = self.week52_high - self.week52_low
+        if rng == 0:
+            return 50.0
+        return round((self.price - self.week52_low) / rng * 100, 1)
+
+    def to_dict(self) -> dict:
+        """Compat avec l'ancien dict get_stock_data."""
+        return {
+            "symbol":          self.symbol,
+            "name":            self.name,
+            "price":           self.price,
+            "previous_close":  self.previous_close,
+            "change":          self.change,
+            "change_percent":  self.change_pct,
+            "currency":        self.currency,
+            "error":           self.error,
+            # Bonus enrichi :
+            "open_price":      self.open_price,
+            "day_high":        self.day_high,
+            "day_low":         self.day_low,
+            "week52_high":     self.week52_high,
+            "week52_low":      self.week52_low,
+            "volume":          self.volume,
+            "avg_volume":      self.avg_volume,
+            "market_cap":      self.market_cap,
+            "pe_ratio":        self.pe_ratio,
+            "eps":             self.eps,
+            "dividend_yield":  self.dividend_yield,
+            "beta":            self.beta,
+            "sector":          self.sector,
+            "exchange":        self.exchange,
+            "is_up":           self.is_up,
+            "week52_position": self.week52_position_pct,
+        }
+
+
+# =====================================================================
+#  HELPERS
+# =====================================================================
+
+def _safe_float(v, default=0.0) -> float:
     try:
-        if hasattr(obj, name):
-            v = getattr(obj, name)
-            return v if v is not None else default
-    except Exception:
-        pass
+        return float(v) if v is not None else default
+    except (TypeError, ValueError):
+        return default
+
+
+def _safe_int(v, default=0) -> int:
     try:
-        if hasattr(obj, "get"):
-            v = obj.get(name)
-            return v if v is not None else default
-    except Exception:
-        pass
-    return default
+        return int(v) if v is not None else default
+    except (TypeError, ValueError):
+        return default
 
 
-def get_stock_data(symbol: str) -> dict:
-    """
-    Récupère le prix actuel et les infos d'un symbole.
-    Retourne un dict avec :
-        symbol, name, price, previous_close, change, change_percent,
-        currency, error (si problème)
-    """
-    symbol = symbol.upper().strip()
-    cached = _cache_get(f"data:{symbol}")
+def fmt_number(n, decimals: int = 2) -> str:
+    """Formate un grand nombre : T / B / M / K."""
+    if n is None:
+        return "N/A"
+    abs_n = abs(n)
+    if abs_n >= 1e12:
+        return f"{n / 1e12:.{decimals}f} T"
+    if abs_n >= 1e9:
+        return f"{n / 1e9:.{decimals}f} B"
+    if abs_n >= 1e6:
+        return f"{n / 1e6:.{decimals}f} M"
+    if abs_n >= 1e3:
+        return f"{n / 1e3:.{decimals}f} K"
+    return f"{n:,.{decimals}f}"
+
+
+# =====================================================================
+#  CACHE TTL 30s
+# =====================================================================
+
+_CACHE: dict = {}
+_TTL_SECONDS = 30
+
+
+def _cache_get(key):
+    e = _CACHE.get(key)
+    if e is None:
+        return None
+    ts, val = e
+    if time.time() - ts > _TTL_SECONDS:
+        _CACHE.pop(key, None)
+        return None
+    return val
+
+
+def _cache_set(key, value):
+    _CACHE[key] = (time.time(), value)
+
+
+# =====================================================================
+#  FETCH PRINCIPAL — retourne un StockQuote
+# =====================================================================
+
+def fetch_quote(symbol: str) -> StockQuote:
+    """Récupère un StockQuote complet. En cas d'échec, retourne un StockQuote
+    avec error renseigné mais avec valeurs par défaut (jamais None)."""
+    symbol = (symbol or "").upper().strip()
+    cached = _cache_get(f"q:{symbol}")
     if cached is not None:
         return cached
 
-    price = None
-    prev_close = None
+    price = 0.0
+    prev_close = 0.0
     currency = "USD"
     name = symbol
+    error = None
 
-    # ---- Tentative 1 : fast_info (rapide) ----
+    info = {}
+    fi = None
     try:
         ticker = yf.Ticker(symbol)
+
         try:
             fi = ticker.fast_info
-            price = _safe_attr(fi, "last_price")
-            prev_close = _safe_attr(fi, "previous_close")
-            currency = _safe_attr(fi, "currency", "USD") or "USD"
-        except Exception as e_fi:
-            print(f"[stock_service] fast_info fail {symbol}: {e_fi}")
+        except Exception:
+            fi = None
 
-        # ---- Tentative 2 : fallback historique 2 jours ----
-        if price is None or prev_close is None:
+        # 1. Tentative fast_info
+        if fi is not None:
+            try:
+                price = _safe_float(getattr(fi, "last_price", None))
+                prev_close = _safe_float(getattr(fi, "previous_close", None))
+                currency = getattr(fi, "currency", None) or currency
+            except Exception:
+                pass
+
+        # 2. Tentative info (riche mais lent) — n'avorte pas si fail
+        try:
+            info = ticker.info or {}
+        except Exception:
+            info = {}
+
+        if not price:
+            price = _safe_float(info.get("currentPrice"))
+        if not prev_close:
+            prev_close = _safe_float(info.get("previousClose"))
+        if info.get("currency"):
+            currency = info.get("currency")
+
+        name = (info.get("shortName") or info.get("longName") or symbol)
+
+        # 3. Fallback historique 5j si toujours pas de prix
+        if not price:
             try:
                 hist = ticker.history(period="5d")
                 if hist is not None and not hist.empty:
                     closes = hist["Close"].dropna()
-                    if len(closes) >= 1:
-                        price = float(closes.iloc[-1]) if price is None else price
-                    if len(closes) >= 2:
-                        prev_close = float(closes.iloc[-2]) if prev_close is None else prev_close
-                    elif price is not None and prev_close is None:
-                        prev_close = price
-            except Exception as e_h:
-                print(f"[stock_service] history fail {symbol}: {e_h}")
+                    if len(closes):
+                        price = float(closes.iloc[-1])
+                    if len(closes) >= 2 and not prev_close:
+                        prev_close = float(closes.iloc[-2])
+            except Exception:
+                pass
 
-        if price is None:
-            raise ValueError(f"Aucune donnée disponible pour {symbol}")
+        if not price:
+            error = "Aucune donnée disponible"
 
-        price = float(price)
-        prev_close = float(prev_close) if prev_close is not None else price
-        change = price - prev_close
-        change_pct = (change / prev_close * 100) if prev_close else 0.0
-
-        # Nom : tentative légère, sans bloquer si ça échoue
-        try:
-            info = ticker.info or {}
-            name = info.get("shortName") or info.get("longName") or symbol
-        except Exception:
-            name = symbol
-
-        result = {
-            "symbol": symbol,
-            "name": name,
-            "price": round(price, 4),
-            "previous_close": round(prev_close, 4),
-            "change": round(change, 4),
-            "change_percent": round(change_pct, 2),
-            "currency": currency,
-            "error": None,
-        }
-        _cache_set(f"data:{symbol}", result)
-        return result
+        # Récupération des champs étendus (depuis info)
+        quote = StockQuote(
+            symbol         = symbol,
+            name           = name,
+            price          = round(price, 4),
+            previous_close = round(prev_close or price, 4),
+            open_price     = round(_safe_float(info.get("open")
+                                               or getattr(fi, "open", None)), 2),
+            day_high       = round(_safe_float(info.get("dayHigh")
+                                               or getattr(fi, "day_high", None)), 2),
+            day_low        = round(_safe_float(info.get("dayLow")
+                                               or getattr(fi, "day_low", None)), 2),
+            week52_high    = round(_safe_float(info.get("fiftyTwoWeekHigh")
+                                               or getattr(fi, "year_high", None)), 2),
+            week52_low     = round(_safe_float(info.get("fiftyTwoWeekLow")
+                                               or getattr(fi, "year_low", None)), 2),
+            volume         = _safe_int(info.get("volume")
+                                       or getattr(fi, "last_volume", None)),
+            avg_volume     = _safe_int(info.get("averageVolume")
+                                       or getattr(fi, "three_month_average_volume", None)),
+            market_cap     = info.get("marketCap"),
+            pe_ratio       = info.get("trailingPE"),
+            eps            = info.get("trailingEps"),
+            dividend_yield = info.get("dividendYield"),
+            beta           = info.get("beta"),
+            sector         = info.get("sector") or info.get("quoteType") or "—",
+            currency       = currency or "USD",
+            exchange       = info.get("exchange") or info.get("fullExchangeName") or "—",
+            error          = error,
+        )
 
     except Exception as e:
-        return {
-            "symbol": symbol,
-            "name": symbol,
-            "price": None,
-            "previous_close": None,
-            "change": None,
-            "change_percent": None,
-            "currency": "",
-            "error": str(e),
-        }
+        quote = StockQuote(
+            symbol=symbol, name=symbol, price=0.0, previous_close=0.0,
+            error=str(e),
+        )
+
+    _cache_set(f"q:{symbol}", quote)
+    return quote
+
+
+# =====================================================================
+#  RÉTROCOMPAT — fonctions historiques utilisées par le reste de l'app
+# =====================================================================
+
+def get_stock_data(symbol: str) -> dict:
+    """Compat ancienne API : retourne un dict (utilisé par home.py, bourse.py)."""
+    return fetch_quote(symbol).to_dict()
 
 
 def get_stock_history(symbol: str, period: str = "1mo") -> list:
+    """Compat ancienne API : retourne juste une liste de closes (pour sparkline)."""
+    records = get_stock_ohlcv(symbol, period=period)
+    return [r["close"] for r in records]
+
+
+def get_stock_ohlcv(symbol: str, period: str = "1mo",
+                    interval: Optional[str] = None) -> list:
     """
-    Historique de cours pour le mini-graphe.
-    period : '1d', '5d', '1mo', '3mo', '6mo', '1y', '5y', 'max'
-    Retourne une liste de floats (closes).
+    Historique OHLCV complet pour graphique chandeliers ou plus riche.
+    period   : 1d 5d 1mo 3mo 6mo 1y 2y 5y ytd max
+    interval : auto-déduit du period si None
     """
-    symbol = symbol.upper().strip()
-    key = f"hist:{symbol}:{period}"
+    symbol = (symbol or "").upper().strip()
+    if interval is None:
+        if period == "1d":
+            interval = "5m"
+        elif period == "5d":
+            interval = "1h"
+        else:
+            interval = "1d"
+
+    key = f"h:{symbol}:{period}:{interval}"
     cached = _cache_get(key)
     if cached is not None:
         return cached
 
     try:
-        ticker = yf.Ticker(symbol)
-        # Intervalle adapté pour ne pas surcharger
-        interval = "5m" if period == "1d" else "1h" if period == "5d" else "1d"
-        hist = ticker.history(period=period, interval=interval)
-        if hist.empty:
+        hist = yf.Ticker(symbol).history(period=period, interval=interval)
+        if hist is None or hist.empty:
             return []
-        closes = [float(x) for x in hist["Close"].dropna().tolist()]
-        _cache_set(key, closes)
-        return closes
+        intraday = interval in ("1m", "5m", "15m", "30m", "1h", "60m", "90m")
+        out = []
+        for ts, row in hist.iterrows():
+            try:
+                o = float(row["Open"]); h = float(row["High"])
+                l = float(row["Low"]);  c = float(row["Close"])
+            except Exception:
+                continue
+            if any(math.isnan(v) for v in (o, h, l, c)):
+                continue
+            out.append({
+                "date":  ts.strftime("%Y-%m-%d %H:%M") if intraday
+                         else ts.strftime("%Y-%m-%d"),
+                "open":  round(o, 4),
+                "high":  round(h, 4),
+                "low":   round(l, 4),
+                "close": round(c, 4),
+                "volume": int(row["Volume"]) if not math.isnan(float(row["Volume"])) else 0,
+            })
+        _cache_set(key, out)
+        return out
     except Exception as e:
-        print(f"[stock_service] history error {symbol}: {e}")
+        print(f"[stock_service] ohlcv error {symbol}: {e}")
         return []
 
 
 def get_market_indices() -> list:
-    """
-    Renvoie la liste des indices/cryptos par défaut avec leurs données.
-    """
+    """Indices par défaut pour la home — format dict."""
     out = []
-    for sym, name, cat in DEFAULT_INDICES:
+    for sym, display, cat in DEFAULT_INDICES:
         d = get_stock_data(sym)
-        d["display_name"] = name
+        d["display_name"] = display
         d["category"] = cat
         out.append(d)
     return out
 
 
+def get_markets_catalog() -> dict:
+    """Renvoie tout le catalogue des marchés (id -> {name, flag, symbols})."""
+    return MARKETS
+
+
+def get_market_stocks(market_id: str) -> list:
+    """Récupère les cotations de toutes les actions d'un marché donné."""
+    market = MARKETS.get(market_id)
+    if not market:
+        return []
+    out = []
+    for sym, friendly in market["symbols"].items():
+        d = get_stock_data(sym)
+        # forcer le nom convivial si l'API ne retourne rien
+        if d.get("name") == sym:
+            d["name"] = friendly
+        d["display_name"] = friendly
+        d["market"] = market_id
+        d["category"] = market["category"]
+        out.append(d)
+    return out
+
+
 def search_symbol(query: str, max_results: int = 8) -> list:
-    """
-    Recherche un symbole/entreprise. Utilise l'endpoint search interne de yfinance.
-    Retourne une liste de dicts : {symbol, name, exchange, type}
-    """
+    """Recherche de symbole via yfinance.Search."""
     if not query or not query.strip():
         return []
     try:
-        # yfinance.Search existe à partir d'une version récente
         from yfinance import Search
         res = Search(query, max_results=max_results).quotes or []
         out = []
@@ -222,41 +502,41 @@ def search_symbol(query: str, max_results: int = 8) -> list:
         return []
 
 
-# =========================================================================
-# Wrappers TEXTE pour Gemini (le LLM consomme du texte, pas des dicts)
-# =========================================================================
+# =====================================================================
+#  WRAPPERS TEXTE pour Gemini
+# =====================================================================
 
 def get_stock_price_text(symbol: str) -> str:
-    """
-    Renvoie le prix actuel d'une action ou indice boursier.
-    Paramètre : symbol (ex: 'AAPL' pour Apple, 'BTC-USD' pour Bitcoin,
-    '^FCHI' pour le CAC40, 'MC.PA' pour LVMH sur Euronext Paris).
-    Utile quand l'utilisateur demande le cours d'une action, d'un indice,
-    d'une crypto ou veut comparer plusieurs valeurs.
-    """
-    d = get_stock_data(symbol)
-    if d.get("error"):
-        return f"❌ Impossible de trouver les données pour '{symbol}'. Erreur : {d['error']}"
+    """Prix actuel d'une action / indice / crypto (avec contexte enrichi)."""
+    q = fetch_quote(symbol)
+    if q.error:
+        return f"❌ Impossible de trouver les données pour '{symbol}'. {q.error}"
 
-    arrow = "📈" if (d["change"] or 0) >= 0 else "📉"
-    sign = "+" if (d["change"] or 0) >= 0 else ""
+    arrow = "📈" if q.is_up else "📉"
+    sign = "+" if q.is_up else ""
+    extra = []
+    if q.market_cap:
+        extra.append(f"Cap. : {fmt_number(q.market_cap)} {q.currency}")
+    if q.pe_ratio:
+        extra.append(f"P/E : {q.pe_ratio:.2f}")
+    if q.sector and q.sector != "—":
+        extra.append(f"Secteur : {q.sector}")
+    extra_str = " · ".join(extra) if extra else ""
+
     return (
-        f"{arrow} {d['name']} ({d['symbol']})\n"
-        f"Prix actuel : {d['price']} {d['currency']}\n"
-        f"Clôture précédente : {d['previous_close']} {d['currency']}\n"
-        f"Variation : {sign}{d['change']} {d['currency']} "
-        f"({sign}{d['change_percent']}%)\n"
-        f"Données : {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+        f"{arrow} {q.name} ({q.symbol})\n"
+        f"Prix : {q.price} {q.currency}\n"
+        f"Variation : {sign}{q.change} ({sign}{q.change_pct}%)\n"
+        f"Clôture préc. : {q.previous_close} {q.currency}\n"
+        f"Range jour : {q.day_low} – {q.day_high}\n"
+        f"Range 52 sem. : {q.week52_low} – {q.week52_high}\n"
+        + (f"{extra_str}\n" if extra_str else "")
+        + f"Place : {q.exchange} · {datetime.now().strftime('%d/%m/%Y %H:%M')}"
     )
 
 
 def get_market_summary_text() -> str:
-    """
-    Renvoie un résumé des principaux indices boursiers mondiaux
-    (S&P500, Nasdaq, Dow Jones, CAC40, DAX, FTSE) et des cryptos
-    principales (Bitcoin, Ethereum, Solana). Utile pour un point de
-    marché global.
-    """
+    """Résumé des principaux indices mondiaux + cryptos."""
     data = get_market_indices()
     lines = ["📊 Aperçu des marchés :\n"]
     current_cat = None
@@ -264,11 +544,11 @@ def get_market_summary_text() -> str:
         if d["category"] != current_cat:
             current_cat = d["category"]
             lines.append(f"\n— {current_cat} —")
-        if d.get("error") or d["price"] is None:
+        if d.get("error") or not d.get("price"):
             lines.append(f"• {d['display_name']} : données indisponibles")
             continue
-        sign = "+" if d["change_percent"] >= 0 else ""
-        emoji = "🟢" if d["change_percent"] >= 0 else "🔴"
+        sign = "+" if d.get("change_percent", 0) >= 0 else ""
+        emoji = "🟢" if d.get("change_percent", 0) >= 0 else "🔴"
         lines.append(
             f"{emoji} {d['display_name']} : {d['price']} {d['currency']} "
             f"({sign}{d['change_percent']}%)"
@@ -276,12 +556,29 @@ def get_market_summary_text() -> str:
     return "\n".join(lines)
 
 
+def get_market_stocks_text(market_id: str) -> str:
+    """Cotations d'un marché entier (ex: 'ma' pour Casablanca)."""
+    market = MARKETS.get(market_id)
+    if not market:
+        valid = ", ".join(MARKETS.keys())
+        return f"Marché '{market_id}' inconnu. Valides : {valid}."
+    stocks = get_market_stocks(market_id)
+    lines = [f"{market['flag']} Bourse de {market['name']} :\n"]
+    for d in stocks:
+        if d.get("error") or not d.get("price"):
+            lines.append(f"• {d['display_name']} : indisponible")
+            continue
+        sign = "+" if d.get("change_percent", 0) >= 0 else ""
+        emoji = "🟢" if d.get("change_percent", 0) >= 0 else "🔴"
+        lines.append(
+            f"{emoji} {d['display_name']} ({d['symbol']}) : "
+            f"{d['price']} {d['currency']} ({sign}{d['change_percent']}%)"
+        )
+    return "\n".join(lines)
+
+
 def search_symbol_text(query: str) -> str:
-    """
-    Recherche le symbole boursier d'une entreprise par son nom
-    (ex: 'Apple' -> AAPL, 'LVMH' -> MC.PA). À utiliser quand l'utilisateur
-    cite un nom d'entreprise sans connaître le symbole exact.
-    """
+    """Recherche d'un symbole par nom d'entreprise."""
     res = search_symbol(query)
     if not res:
         return f"Aucun résultat pour '{query}'."
@@ -292,22 +589,19 @@ def search_symbol_text(query: str) -> str:
 
 
 def compare_stocks_text(symbols: list) -> str:
-    """
-    Compare plusieurs valeurs boursières côte à côte.
-    Paramètre : symbols, liste de symboles (ex: ['AAPL', 'MSFT', 'GOOGL']).
-    """
+    """Compare plusieurs valeurs côte à côte."""
     if not symbols:
         return "Aucun symbole à comparer."
     lines = ["📊 Comparaison :\n"]
     for s in symbols:
-        d = get_stock_data(s)
-        if d.get("error") or d["price"] is None:
+        q = fetch_quote(s)
+        if q.error or not q.price:
             lines.append(f"• {s} : données indisponibles")
             continue
-        sign = "+" if d["change_percent"] >= 0 else ""
-        emoji = "🟢" if d["change_percent"] >= 0 else "🔴"
+        sign = "+" if q.is_up else ""
+        emoji = "🟢" if q.is_up else "🔴"
         lines.append(
-            f"{emoji} {d['name']} ({d['symbol']}) : "
-            f"{d['price']} {d['currency']} ({sign}{d['change_percent']}%)"
+            f"{emoji} {q.name} ({q.symbol}) : "
+            f"{q.price} {q.currency} ({sign}{q.change_pct}%)"
         )
     return "\n".join(lines)

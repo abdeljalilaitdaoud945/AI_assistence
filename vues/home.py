@@ -3,7 +3,7 @@ Home — refonte Arc-inspired
   - Typo sobre, grande, généreux espacement
   - Hero header avec date / salutation
   - 1 gros graphique marché (sparkline)
-  - 4 cards : Bourse / Mails / RDV / Documents (chacune avec une viz)
+  - 6 cards (Bourse, Mails, RDV, Documents, Affaires, ERP)
   - Section "Aujourd'hui" : prochains RDV
 
 Données live chargées en threads pour ne pas geler l'UI.
@@ -52,10 +52,18 @@ def build(page: ft.Page) -> ft.View:
         content=ft.Column(
             spacing=4,
             controls=[
-                ft.Text(date_str.capitalize(), size=FONT.small,
-                        color=C.text_subtle, weight=ft.FontWeight.W_500),
-                ft.Text(name, size=FONT.display, color=C.text,
-                        weight=ft.FontWeight.W_700),
+                ft.Text(
+                    date_str.capitalize(), 
+                    size=FONT.small,
+                    color=C.text_subtle, 
+                    weight=ft.FontWeight.W_500
+                ),
+                ft.Text(
+                    name, 
+                    size=FONT.display, 
+                    color=C.text,
+                    weight=ft.FontWeight.W_700
+                ),
             ],
         ),
     )
@@ -63,15 +71,28 @@ def build(page: ft.Page) -> ft.View:
     # ============================================================
     # BIG MARKET SPARKLINE — pleine largeur
     # ============================================================
-    market_title = ft.Text("S&P 500", size=FONT.body,
-                           color=C.text_muted, weight=ft.FontWeight.W_500)
-    market_price = ft.Text("—", size=FONT.h1, color=C.text,
-                           weight=ft.FontWeight.W_700)
+    market_title = ft.Text(
+        "S&P 500", 
+        size=FONT.body,
+        color=C.text_muted, 
+        weight=ft.FontWeight.W_500
+    )
+    market_price = ft.Text(
+        "—", 
+        size=FONT.h1, 
+        color=C.text,
+        weight=ft.FontWeight.W_700
+    )
     market_chg = T.accent_chip("—")
     market_chart = ft.Container(
-        height=80, alignment=ft.Alignment.CENTER,
-        content=ft.ProgressRing(width=18, height=18,
-                                stroke_width=2, color=C.accent),
+        height=80, 
+        alignment=ft.Alignment.CENTER,
+        content=ft.ProgressRing(
+            width=18, 
+            height=18,
+            stroke_width=2, 
+            color=C.accent
+        ),
     )
 
     market_card = T.card(
@@ -83,9 +104,13 @@ def build(page: ft.Page) -> ft.View:
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                     controls=[
-                        ft.Column(spacing=2, controls=[
-                            market_title, market_price,
-                        ]),
+                        ft.Column(
+                            spacing=2, 
+                            controls=[
+                                market_title, 
+                                market_price,
+                            ]
+                        ),
                         market_chg,
                     ],
                 ),
@@ -101,9 +126,11 @@ def build(page: ft.Page) -> ft.View:
             if d.get("error") or d.get("price") is None:
                 market_price.value = "Indisponible"
                 market_chg.content.value = "—"
-                market_chart.content = ft.Text("Pas de données",
-                                               color=C.text_subtle,
-                                               size=FONT.small)
+                market_chart.content = ft.Text(
+                    "Pas de données",
+                    color=C.text_subtle,
+                    size=FONT.small
+                )
             else:
                 pct = d["change_percent"]
                 sign = "+" if pct >= 0 else ""
@@ -114,28 +141,46 @@ def build(page: ft.Page) -> ft.View:
                 market_chg.bgcolor = ft.Colors.with_opacity(0.15, color)
                 market_chg.content.color = color
                 market_chart.content = T.sparkline(
-                    hist, color=color, width=600, height=80
+                    hist, 
+                    color=color, 
+                    width=600, 
+                    height=80
                 )
             page.update()
         except Exception as e:
             market_price.value = "Erreur"
-            market_chart.content = ft.Text(str(e)[:60],
-                                           color=C.danger, size=FONT.small)
+            market_chart.content = ft.Text(
+                str(e)[:60],
+                color=C.danger, 
+                size=FONT.small
+            )
             page.update()
 
     # ============================================================
-    # 4 CARDS
+    # LES 6 CARDS
     # ============================================================
 
     # ---- Bourse mini (Nasdaq) ----
-    nasdaq_val = ft.Text("—", size=FONT.h3,
-                         color=C.text, weight=ft.FontWeight.W_700)
-    nasdaq_chg = ft.Text("—", size=FONT.small, color=C.text_subtle,
-                         weight=ft.FontWeight.W_600)
+    nasdaq_val = ft.Text(
+        "—", 
+        size=FONT.h3,
+        color=C.text, 
+        weight=ft.FontWeight.W_700
+    )
+    nasdaq_chg = ft.Text(
+        "—", 
+        size=FONT.small, 
+        color=C.text_subtle,
+        weight=ft.FontWeight.W_600
+    )
     nasdaq_chart = ft.Container(
         height=52,
-        content=ft.ProgressRing(width=12, height=12,
-                                stroke_width=2, color=C.accent),
+        content=ft.ProgressRing(
+            width=12, 
+            height=12,
+            stroke_width=2, 
+            color=C.accent
+        ),
     )
 
     async def go_bourse(e):
@@ -151,18 +196,32 @@ def build(page: ft.Page) -> ft.View:
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                     controls=[
-                        ft.Row(spacing=8, controls=[
-                            ft.Icon(ft.Icons.SHOW_CHART_ROUNDED,
-                                    color=C.accent, size=14),
-                            ft.Text("Bourse", color=C.text_muted,
+                        ft.Row(
+                            spacing=8, 
+                            controls=[
+                                ft.Icon(
+                                    ft.Icons.SHOW_CHART_ROUNDED,
+                                    color=C.accent, 
+                                    size=14
+                                ),
+                                ft.Text(
+                                    "Bourse", 
+                                    color=C.text_muted,
                                     size=FONT.small,
-                                    weight=ft.FontWeight.W_500),
-                        ]),
-                        ft.Icon(ft.Icons.ARROW_OUTWARD_ROUNDED,
-                                color=C.text_subtle, size=14),
+                                    weight=ft.FontWeight.W_500
+                                ),
+                            ]
+                        ),
+                        ft.Icon(
+                            ft.Icons.ARROW_OUTWARD_ROUNDED,
+                            color=C.text_subtle, 
+                            size=14
+                        ),
                     ],
                 ),
-                nasdaq_val, nasdaq_chg, nasdaq_chart,
+                nasdaq_val, 
+                nasdaq_chg, 
+                nasdaq_chart,
             ],
         ),
     )
@@ -182,8 +241,12 @@ def build(page: ft.Page) -> ft.View:
                 nasdaq_val.value = f"{d['price']:,.0f}"
                 nasdaq_chg.value = f"Nasdaq · {sign}{pct:.2f}%"
                 nasdaq_chg.color = color
-                nasdaq_chart.content = T.sparkline(hist, color=color,
-                                                   width=220, height=52)
+                nasdaq_chart.content = T.sparkline(
+                    hist, 
+                    color=color,
+                    width=220, 
+                    height=52
+                )
             page.update()
         except Exception:
             nasdaq_val.value = "—"
@@ -194,8 +257,12 @@ def build(page: ft.Page) -> ft.View:
     mails_ring_holder = ft.Container(
         height=84,
         alignment=ft.Alignment.CENTER,
-        content=ft.ProgressRing(width=14, height=14,
-                                stroke_width=2, color=C.accent),
+        content=ft.ProgressRing(
+            width=14, 
+            height=14,
+            stroke_width=2, 
+            color=C.accent
+        ),
     )
     mails_sub = ft.Text("—", color=C.text_subtle, size=FONT.micro)
 
@@ -213,15 +280,27 @@ def build(page: ft.Page) -> ft.View:
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                     controls=[
-                        ft.Row(spacing=8, controls=[
-                            ft.Icon(ft.Icons.MAIL_OUTLINE_ROUNDED,
-                                    color=C.accent, size=14),
-                            ft.Text("Mails", color=C.text_muted,
+                        ft.Row(
+                            spacing=8, 
+                            controls=[
+                                ft.Icon(
+                                    ft.Icons.MAIL_OUTLINE_ROUNDED,
+                                    color=C.accent, 
+                                    size=14
+                                ),
+                                ft.Text(
+                                    "Mails", 
+                                    color=C.text_muted,
                                     size=FONT.small,
-                                    weight=ft.FontWeight.W_500),
-                        ]),
-                        ft.Icon(ft.Icons.ARROW_OUTWARD_ROUNDED,
-                                color=C.text_subtle, size=14),
+                                    weight=ft.FontWeight.W_500
+                                ),
+                            ]
+                        ),
+                        ft.Icon(
+                            ft.Icons.ARROW_OUTWARD_ROUNDED,
+                            color=C.text_subtle, 
+                            size=14
+                        ),
                     ],
                 ),
                 ft.Container(
@@ -243,8 +322,11 @@ def build(page: ft.Page) -> ft.View:
             except Exception:
                 total = max(unread, 1)
             mails_ring_holder.content = T.ring_chart(
-                value=unread, total=max(total, 1),
-                color=C.accent, size=84, stroke=7,
+                value=unread, 
+                total=max(total, 1),
+                color=C.accent, 
+                size=84, 
+                stroke=7,
                 label=str(unread),
             )
             mails_sub.value = ("non lu" if unread == 1 else f"non lus")
@@ -254,9 +336,11 @@ def build(page: ft.Page) -> ft.View:
                 mails_sub.value = f"{unread} non lu" + ("s" if unread > 1 else "")
             page.update()
         except Exception:
-            mails_ring_holder.content = ft.Text("—",
-                                                color=C.text_subtle,
-                                                size=FONT.small)
+            mails_ring_holder.content = ft.Text(
+                "—",
+                color=C.text_subtle,
+                size=FONT.small
+            )
             mails_sub.value = "Erreur"
             page.update()
 
@@ -264,8 +348,12 @@ def build(page: ft.Page) -> ft.View:
     rdv_timeline_holder = ft.Container(
         height=84,
         alignment=ft.Alignment.CENTER,
-        content=ft.ProgressRing(width=14, height=14,
-                                stroke_width=2, color=C.accent),
+        content=ft.ProgressRing(
+            width=14, 
+            height=14,
+            stroke_width=2, 
+            color=C.accent
+        ),
     )
     rdv_sub = ft.Text("—", color=C.text_subtle, size=FONT.micro)
 
@@ -282,18 +370,31 @@ def build(page: ft.Page) -> ft.View:
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                     controls=[
-                        ft.Row(spacing=8, controls=[
-                            ft.Icon(ft.Icons.EVENT_AVAILABLE_ROUNDED,
-                                    color=C.accent, size=14),
-                            ft.Text("Rendez-vous", color=C.text_muted,
+                        ft.Row(
+                            spacing=8, 
+                            controls=[
+                                ft.Icon(
+                                    ft.Icons.EVENT_AVAILABLE_ROUNDED,
+                                    color=C.accent, 
+                                    size=14
+                                ),
+                                ft.Text(
+                                    "Rendez-vous", 
+                                    color=C.text_muted,
                                     size=FONT.small,
-                                    weight=ft.FontWeight.W_500),
-                        ]),
-                        ft.Icon(ft.Icons.ARROW_OUTWARD_ROUNDED,
-                                color=C.text_subtle, size=14),
+                                    weight=ft.FontWeight.W_500
+                                ),
+                            ]
+                        ),
+                        ft.Icon(
+                            ft.Icons.ARROW_OUTWARD_ROUNDED,
+                            color=C.text_subtle, 
+                            size=14
+                        ),
                     ],
                 ),
-                rdv_timeline_holder, rdv_sub,
+                rdv_timeline_holder, 
+                rdv_sub,
             ],
         ),
     )
@@ -312,8 +413,10 @@ def build(page: ft.Page) -> ft.View:
             events = _events_safe(4)
             if not events:
                 rdv_timeline_holder.content = ft.Text(
-                    "Pas de RDV prévu", color=C.text_subtle,
-                    size=FONT.small, italic=True,
+                    "Pas de RDV prévu", 
+                    color=C.text_subtle,
+                    size=FONT.small, 
+                    italic=True,
                 )
                 rdv_sub.value = "—"
             else:
@@ -329,25 +432,42 @@ def build(page: ft.Page) -> ft.View:
                             label = str(start)[:5]
                     nodes.append({"label": label, "accent": i == 0})
                 rdv_timeline_holder.content = T.dots_timeline(
-                    nodes, width=220, height=70, color=C.accent
+                    nodes, 
+                    width=220, 
+                    height=70, 
+                    color=C.accent
                 )
-                rdv_sub.value = (f"{len(events)} à venir"
-                                 if len(events) > 1 else "1 à venir")
+                rdv_sub.value = (f"{len(events)} à venir" if len(events) > 1 else "1 à venir")
             page.update()
         except Exception:
-            rdv_timeline_holder.content = ft.Text("—",
-                                                  color=C.text_subtle,
-                                                  size=FONT.small)
+            rdv_timeline_holder.content = ft.Text(
+                "—",
+                color=C.text_subtle,
+                size=FONT.small
+            )
             rdv_sub.value = "Erreur"
             page.update()
 
     # ---- Documents ----
-    docs_count = ft.Text("—", size=FONT.display, color=C.text,
-                         weight=ft.FontWeight.W_700)
-    docs_last = ft.Text("—", size=FONT.micro, color=C.text_subtle,
-                        max_lines=1, overflow=ft.TextOverflow.ELLIPSIS)
-    docs_caption = ft.Text("analysés", size=FONT.small,
-                           color=C.text_muted, weight=ft.FontWeight.W_500)
+    docs_count = ft.Text(
+        "—", 
+        size=FONT.display, 
+        color=C.text,
+        weight=ft.FontWeight.W_700
+    )
+    docs_last = ft.Text(
+        "—", 
+        size=FONT.micro, 
+        color=C.text_subtle,
+        max_lines=1, 
+        overflow=ft.TextOverflow.ELLIPSIS
+    )
+    docs_caption = ft.Text(
+        "analysés", 
+        size=FONT.small,
+        color=C.text_muted, 
+        weight=ft.FontWeight.W_500
+    )
 
     async def go_docs(e):
         await page.push_route("/pdf")
@@ -362,19 +482,32 @@ def build(page: ft.Page) -> ft.View:
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                     controls=[
-                        ft.Row(spacing=8, controls=[
-                            ft.Icon(ft.Icons.DESCRIPTION_OUTLINED,
-                                    color=C.accent, size=14),
-                            ft.Text("Documents", color=C.text_muted,
+                        ft.Row(
+                            spacing=8, 
+                            controls=[
+                                ft.Icon(
+                                    ft.Icons.DESCRIPTION_OUTLINED,
+                                    color=C.accent, 
+                                    size=14
+                                ),
+                                ft.Text(
+                                    "Documents", 
+                                    color=C.text_muted,
                                     size=FONT.small,
-                                    weight=ft.FontWeight.W_500),
-                        ]),
-                        ft.Icon(ft.Icons.ARROW_OUTWARD_ROUNDED,
-                                color=C.text_subtle, size=14),
+                                    weight=ft.FontWeight.W_500
+                                ),
+                            ]
+                        ),
+                        ft.Icon(
+                            ft.Icons.ARROW_OUTWARD_ROUNDED,
+                            color=C.text_subtle, 
+                            size=14
+                        ),
                     ],
                 ),
                 ft.Container(height=8),
-                docs_count, docs_caption,
+                docs_count, 
+                docs_caption,
                 ft.Container(height=4),
                 docs_last,
             ],
@@ -396,16 +529,168 @@ def build(page: ft.Page) -> ft.View:
             docs_last.value = ""
             page.update()
 
+    # ---- Affaires ----
+    biz_count = ft.Text(
+        "—", 
+        size=FONT.display, 
+        color=C.text,
+        weight=ft.FontWeight.W_700
+    )
+    biz_sub = ft.Text(
+        "—", 
+        size=FONT.micro, 
+        color=C.text_subtle
+    )
+
+    async def go_biz(e):
+        await page.push_route("/business")
+
+    biz_card = T.card(
+        on_click=go_biz, 
+        padding=16,
+        content=ft.Column(
+            spacing=10,
+            controls=[
+                ft.Row(
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                    controls=[
+                        ft.Row(
+                            spacing=8, 
+                            controls=[
+                                ft.Icon(
+                                    ft.Icons.BUSINESS_CENTER_OUTLINED,
+                                    color=C.accent, 
+                                    size=14
+                                ),
+                                ft.Text(
+                                    "Affaires", 
+                                    color=C.text_muted,
+                                    size=FONT.small,
+                                    weight=ft.FontWeight.W_500
+                                ),
+                            ]
+                        ),
+                        ft.Icon(
+                            ft.Icons.ARROW_OUTWARD_ROUNDED,
+                            color=C.text_subtle, 
+                            size=14
+                        ),
+                    ],
+                ),
+                ft.Container(height=4),
+                biz_count,
+                ft.Text(
+                    "dossiers", 
+                    size=FONT.small,
+                    color=C.text_muted,
+                    weight=ft.FontWeight.W_500
+                ),
+                ft.Container(height=2),
+                biz_sub,
+            ],
+        ),
+    )
+
+    def load_biz():
+        try:
+            from services.business_tracker import list_deals, deals_needing_followup
+            deals = list_deals()
+            followup = deals_needing_followup(7)
+            biz_count.value = str(len(deals))
+            biz_sub.value = (f"{len(followup)} à relancer" if followup else "à jour")
+            page.update()
+        except Exception:
+            biz_count.value = "—"
+            biz_sub.value = ""
+            page.update()
+
+    # ---- ERP / Pilotage ----
+    erp_ca = ft.Text(
+        "—", 
+        size=FONT.h3, 
+        color=C.text, 
+        weight=ft.FontWeight.W_700
+    )
+    erp_marge = ft.Text(
+        "—", 
+        size=FONT.small, 
+        color=C.text_subtle, 
+        weight=ft.FontWeight.W_600
+    )
+
+    async def go_erp(e):
+        await page.push_route("/erp")
+
+    erp_card = T.card(
+        on_click=go_erp, 
+        padding=16,
+        content=ft.Column(
+            spacing=10,
+            controls=[
+                ft.Row(
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                    controls=[
+                        ft.Row(
+                            spacing=8, 
+                            controls=[
+                                ft.Icon(
+                                    ft.Icons.BAR_CHART_ROUNDED, 
+                                    color=C.accent, 
+                                    size=14
+                                ),
+                                ft.Text(
+                                    "Pilotage ERP", 
+                                    color=C.text_muted,
+                                    size=FONT.small,
+                                    weight=ft.FontWeight.W_500
+                                ),
+                            ]
+                        ),
+                        ft.Icon(
+                            ft.Icons.ARROW_OUTWARD_ROUNDED,
+                            color=C.text_subtle, 
+                            size=14
+                        ),
+                    ],
+                ),
+                ft.Container(height=4),
+                erp_ca,
+                erp_marge,
+            ],
+        ),
+    )
+
+    def load_erp():
+        try:
+            from services.erp_service import get_erp_data
+            data = get_erp_data()
+            ca = data.get("chiffre_affaires", {}).get("realise", 0)
+            erp_ca.value = f"{ca/1000000:.1f}M MAD"
+            marge = data.get("marge_globale", {}).get("realise", 0)
+            erp_marge.value = f"Marge : {marge}%"
+            erp_marge.color = C.success if marge >= 25 else C.warning
+            page.update()
+        except Exception:
+            erp_ca.value = "—"
+            erp_marge.value = ""
+            page.update()
+
+
     # ============================================================
-    # Grid 4 cards
+    # Grid 6 cards
     # ============================================================
     grid = ft.ResponsiveRow(
-        spacing=12, run_spacing=12,
+        spacing=12, 
+        run_spacing=12,
         controls=[
-            ft.Container(col={"xs": 6, "md": 3}, content=bourse_card),
-            ft.Container(col={"xs": 6, "md": 3}, content=mails_card),
-            ft.Container(col={"xs": 6, "md": 3}, content=rdv_card),
-            ft.Container(col={"xs": 6, "md": 3}, content=docs_card),
+            ft.Container(col={"xs": 6, "md": 4}, content=bourse_card),
+            ft.Container(col={"xs": 6, "md": 4}, content=mails_card),
+            ft.Container(col={"xs": 6, "md": 4}, content=rdv_card),
+            ft.Container(col={"xs": 6, "md": 4}, content=docs_card),
+            ft.Container(col={"xs": 6, "md": 4}, content=biz_card),
+            ft.Container(col={"xs": 6, "md": 4}, content=erp_card),
         ],
     )
 
@@ -415,9 +700,14 @@ def build(page: ft.Page) -> ft.View:
     next_rdv_col = ft.Column(spacing=8)
     next_rdv_col.controls.append(
         ft.Container(
-            padding=20, alignment=ft.Alignment.CENTER,
-            content=ft.ProgressRing(width=14, height=14,
-                                    stroke_width=2, color=C.accent),
+            padding=20, 
+            alignment=ft.Alignment.CENTER,
+            content=ft.ProgressRing(
+                width=14, 
+                height=14,
+                stroke_width=2, 
+                color=C.accent
+            ),
         )
     )
 
@@ -431,7 +721,8 @@ def build(page: ft.Page) -> ft.View:
                         padding=18,
                         content=ft.Text(
                             "Pas de prochain rendez-vous.",
-                            color=C.text_subtle, size=FONT.small,
+                            color=C.text_subtle, 
+                            size=FONT.small,
                             italic=True,
                         ),
                     )
@@ -451,8 +742,7 @@ def build(page: ft.Page) -> ft.View:
                                 when = str(start)[:16]
                     next_rdv_col.controls.append(
                         ft.Container(
-                            padding=ft.Padding(left=14, top=12,
-                                               right=14, bottom=12),
+                            padding=ft.Padding(left=14, top=12, right=14, bottom=12),
                             border_radius=14,
                             bgcolor=C.bg_elevated,
                             border=ft.Border(
@@ -464,20 +754,30 @@ def build(page: ft.Page) -> ft.View:
                             content=ft.Row(
                                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                                 controls=[
-                                    ft.Column(spacing=2, expand=True,
-                                              controls=[
-                                                  ft.Text(summary,
-                                                          color=C.text,
-                                                          size=FONT.body,
-                                                          weight=ft.FontWeight.W_600,
-                                                          max_lines=1,
-                                                          overflow=ft.TextOverflow.ELLIPSIS),
-                                                  ft.Text(when,
-                                                          color=C.text_subtle,
-                                                          size=FONT.micro),
-                                              ]),
-                                    ft.Icon(ft.Icons.CHEVRON_RIGHT_ROUNDED,
-                                            color=C.text_subtle, size=18),
+                                    ft.Column(
+                                        spacing=2, 
+                                        expand=True,
+                                        controls=[
+                                            ft.Text(
+                                                summary,
+                                                color=C.text,
+                                                size=FONT.body,
+                                                weight=ft.FontWeight.W_600,
+                                                max_lines=1,
+                                                overflow=ft.TextOverflow.ELLIPSIS
+                                            ),
+                                            ft.Text(
+                                                when,
+                                                color=C.text_subtle,
+                                                size=FONT.micro
+                                            ),
+                                        ]
+                                    ),
+                                    ft.Icon(
+                                        ft.Icons.CHEVRON_RIGHT_ROUNDED,
+                                        color=C.text_subtle, 
+                                        size=18
+                                    ),
                                 ],
                             ),
                         )
@@ -499,7 +799,8 @@ def build(page: ft.Page) -> ft.View:
         actions=[
             ft.IconButton(
                 icon=ft.Icons.TUNE_ROUNDED,
-                icon_color=C.text_muted, icon_size=20,
+                icon_color=C.text_muted, 
+                icon_size=20,
                 on_click=go_settings,
             ),
             ft.Container(width=8),
@@ -510,8 +811,12 @@ def build(page: ft.Page) -> ft.View:
     # Assemblage
     # ============================================================
     view = ft.View(
-        route="/", padding=0, bgcolor=C.bg, scroll=ft.ScrollMode.AUTO,
+        route="/", 
+        padding=0, 
+        bgcolor=C.bg, 
+        scroll=ft.ScrollMode.AUTO,
     )
+    
     view.appbar = appbar
     view.navigation_bar = build_navbar(page, selected=0)
 
@@ -535,7 +840,7 @@ def build(page: ft.Page) -> ft.View:
 
     # Lancer les chargements en parallèle
     for fn in (load_market, load_bourse_mini, load_mails_count,
-               load_rdv, load_docs, load_next_rdv):
+               load_rdv, load_docs, load_next_rdv, load_biz, load_erp):
         threading.Thread(target=fn, daemon=True).start()
 
     return view

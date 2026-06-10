@@ -17,6 +17,8 @@ ROUTE_TO_NAV = {
     "/settings":   0,
     "/bourse":     0,
     "/pdf":        0,
+    "/business":   0,
+    "/erp":        0,
     "/mailtotal":  1,
     "/calendrier": 2,
 }
@@ -66,10 +68,17 @@ def build_navbar(page: ft.Page, selected: int = 0):
                 spacing=2,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 controls=[
-                    ft.Icon(icons[i], size=20, color=icon_color),
-                    ft.Text(labels[i], size=FONT.micro,
-                            color=text_color,
-                            weight=ft.FontWeight.W_700 if active else ft.FontWeight.W_500),
+                    ft.Icon(
+                        icons[i], 
+                        size=20, 
+                        color=icon_color
+                    ),
+                    ft.Text(
+                        labels[i], 
+                        size=FONT.micro,
+                        color=text_color,
+                        weight=ft.FontWeight.W_700 if active else ft.FontWeight.W_500
+                    ),
                 ],
             ),
         )
@@ -87,7 +96,8 @@ def build_navbar(page: ft.Page, selected: int = 0):
             right=ft.BorderSide(1, C.border),
         ),
         shadow=ft.BoxShadow(
-            blur_radius=30, spread_radius=0,
+            blur_radius=30, 
+            spread_radius=0,
             color=ft.Colors.with_opacity(0.5, "#000000"),
             offset=ft.Offset(0, 12),
         ),

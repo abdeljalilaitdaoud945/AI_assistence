@@ -1,15 +1,16 @@
 """
-Vue Mailtotal — historique complet, même style que mails.py.
+Vue Mailtotal — historique complet, cards cliquables.
 """
 
 import threading
+import re
 
 import flet as ft
 
 from vues import theme as T
 from vues.theme import C, FONT
 from vues.navbar import build_navbar, nav_index_for
-from vues.mails import _mail_card  # réutilise le même rendu
+from vues.mails import _mail_card, open_mail_detail, _clean_text
 from services.email_service import get_emails_data
 
 
@@ -35,7 +36,16 @@ def build(page: ft.Page) -> ft.View:
                 )
             else:
                 for m in emails:
-                    emails_col.controls.append(_mail_card(m))
+                    mid = m.get("id")
+                    subj = _clean_text(m.get("sujet", ""))
+                    sender = m.get("expediteur", "")
+                    emails_col.controls.append(
+                        _mail_card(
+                            m,
+                            on_click=lambda e, _mid=mid, _s=subj, _sd=sender:
+                                open_mail_detail(page, _mid, _s, _sd),
+                        )
+                    )
             page.update()
         except Exception as e:
             loading.visible = False
@@ -48,15 +58,17 @@ def build(page: ft.Page) -> ft.View:
 
     threading.Thread(target=fetch_all_mails, daemon=True).start()
 
+    def do_refresh(e):
+        loading.visible = True
+        page.update()
+        threading.Thread(target=fetch_all_mails, daemon=True).start()
+
     actions = [
         ft.IconButton(
             icon=ft.Icons.REFRESH_ROUNDED,
             icon_color=C.text_muted, icon_size=18,
             tooltip="Rafraîchir",
-            on_click=lambda e: (
-                loading.__setattr__("visible", True),
-                threading.Thread(target=fetch_all_mails, daemon=True).start(),
-            ),
+            on_click=do_refresh,
         ),
         ft.Container(width=8),
     ]
