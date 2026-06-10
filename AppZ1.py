@@ -10,6 +10,7 @@ ROUTE_BUILDERS = {
     "/AI": AIassistant.build,
     "/calendrier": calendrier.build,
     "/mailtotal": mailtotal.build,
+    "/gestion_reunion":gestion_reunion.build,#### voila ce que j'ai modifier
 }
 
 ROUTE_STACKS = {
@@ -19,7 +20,8 @@ ROUTE_STACKS = {
     "/settings": ["/", "/settings"], 
     "/AI": ["/AI"],
     "/calendrier": ["/rdv", "/calendrier"],
-    "/mailtotal": ["/mails", "/mailtotal"] 
+    "/mailtotal": ["/mails", "/mailtotal"] ,
+    "/gestion_reunion":["/gestion_reunion"] ##### meme ici
 }
 
 def main(page: ft.Page):
