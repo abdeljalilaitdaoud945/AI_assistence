@@ -3,16 +3,17 @@ import flet as ft
 
 def build_navbar(page: ft.Page, selected: int = 0):
 
-    routes = ["/", "/mails", "/rdv", "/AI"]
+    routes = ["/", "/mails", "/rdv", "/AI", "/gestion_reunion"]#####ici
 
     icons = [
         ft.Icons.HOME_ROUNDED,
         ft.Icons.MAIL_ROUNDED,
         ft.Icons.EVENT_ROUNDED,
         ft.Icons.AUTO_AWESOME_ROUNDED,
+        ft.Icons.MIC_EXTERNAL_ON_ROUNDED,#####ici
     ]
 
-    labels = ["Accueil", "Mails", "RDV", "AI"]
+    labels = ["Accueil", "Mails", "RDV", "AI","Réunion"]#######ici
 
     def go(i):
         page.go(routes[i])
