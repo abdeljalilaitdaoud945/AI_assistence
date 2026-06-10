@@ -14,6 +14,17 @@ from services.email_service import (
     send_email
 )
 
+# Imports des services Bourse
+from services.stock_service import (
+    get_stock_price_text,
+    get_market_summary_text,
+    search_symbol_text,
+    compare_stocks_text,
+)
+
+# Import service PDF
+from services.pdf_history import get_pdf_history_text
+
 mcp = FastMCP(name="InptApp2")
 
 # ==========================================
@@ -53,6 +64,39 @@ def mcp_get_unread_emails(limit: int = 5) -> str:
 def mcp_send_email(destinataire: str, sujet: str, contenu: str) -> str:
     """Envoie un email à un contact. Paramètres attendus : destinataire (adresse email valide), sujet de l'email, et contenu du message."""
     return send_email(destinataire, sujet, contenu)
+
+# ==========================================
+# 📈 OUTILS BOURSE
+# ==========================================
+
+@mcp.tool()
+def mcp_get_stock_price(symbol: str) -> str:
+    """Renvoie le prix actuel et la variation du jour pour un symbole boursier (ex: 'AAPL', 'BTC-USD', '^FCHI')."""
+    return get_stock_price_text(symbol)
+
+@mcp.tool()
+def mcp_get_market_summary() -> str:
+    """Renvoie un résumé des principaux marchés mondiaux (S&P500, Nasdaq, Dow, CAC40, DAX, FTSE, BTC, ETH, SOL)."""
+    return get_market_summary_text()
+
+@mcp.tool()
+def mcp_search_symbol(query: str) -> str:
+    """Recherche le symbole boursier d'une entreprise par son nom (ex: 'Apple' -> AAPL)."""
+    return search_symbol_text(query)
+
+@mcp.tool()
+def mcp_compare_stocks(symbols: list) -> str:
+    """Compare plusieurs valeurs boursières côte à côte. Paramètre : liste de symboles."""
+    return compare_stocks_text(symbols)
+
+# ==========================================
+# 📄 OUTILS COMPTES-RENDUS PDF
+# ==========================================
+
+@mcp.tool()
+def mcp_get_pdf_history(limit: int = 10) -> str:
+    """Renvoie la liste des derniers comptes-rendus de réunion analysés (résumé, nb RDV / tâches)."""
+    return get_pdf_history_text(limit)
 
 if __name__ == "__main__":
     mcp.run()

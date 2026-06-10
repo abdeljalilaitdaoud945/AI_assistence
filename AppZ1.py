@@ -1,5 +1,5 @@
 import flet as ft 
-from vues import home, mails, settings, AIassistant, rdv, calendrier, mailtotal
+from vues import home, mails, settings, AIassistant, rdv, calendrier, mailtotal, bourse, pdf
 from services.google_auth import get_credentials, get_user_info
 
 ROUTE_BUILDERS = {
@@ -10,6 +10,8 @@ ROUTE_BUILDERS = {
     "/AI": AIassistant.build,
     "/calendrier": calendrier.build,
     "/mailtotal": mailtotal.build,
+    "/bourse": bourse.build,
+    "/pdf": pdf.build,
 }
 
 ROUTE_STACKS = {
@@ -19,7 +21,9 @@ ROUTE_STACKS = {
     "/settings": ["/", "/settings"], 
     "/AI": ["/AI"],
     "/calendrier": ["/rdv", "/calendrier"],
-    "/mailtotal": ["/mails", "/mailtotal"] 
+    "/mailtotal": ["/mails", "/mailtotal"],
+    "/bourse": ["/", "/bourse"],
+    "/pdf": ["/", "/pdf"],
 }
 
 def main(page: ft.Page):
