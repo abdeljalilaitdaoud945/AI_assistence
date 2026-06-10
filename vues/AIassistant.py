@@ -3,6 +3,7 @@ import threading
 import os
 from vues.navbar import build_navbar
 from services.ai_agent import ask_agent
+import speech_recognition as sr### ajouter cela
 
 def build(page: ft.Page) -> ft.View:
 
@@ -70,22 +71,26 @@ def build(page: ft.Page) -> ft.View:
         page.update()
 
         def listen():
-            import speech_recognition as sr
             r = sr.Recognizer()
             with sr.Microphone() as source:
-                print("Parlez...")
                 r.pause_threshold = 1
                 r.adjust_for_ambient_noise(source,) 
                 audio = r.listen(source, timeout=10)
             try:
                 command = r.recognize_google(audio, language="fr-FR")
-                print(command)
+                field.value = command
+                send_message(command)
             except sr.UnknownValueError:
                 print("Désolé, je n'ai pas compris.")
             except sr.RequestError as e:
                 print("Erreur de service; {0}".format(e))
-                threading.Thread(target=listen).start()
-
+                threading.Thread(target=listen).start() #######
+            finally:
+                mic_btn.icon = ft.Icons.MIC
+                mic_btn.bgcolor = "#1E293B"
+                page.update()
+            threading.Thread(target=listen).start()
+#####################################""
     send_btn = ft.IconButton(ft.Icons.SEND, icon_color="white", on_click=send_message)
 
     def clear_chat(e):
@@ -102,7 +107,7 @@ def build(page: ft.Page) -> ft.View:
         padding=0,
     )
 
-    route_indexes = {"/": 0, "/mails": 1, "/rdv": 2, "AI": 3}
+    route_indexes = {"/": 0, "/mails": 1, "/rdv": 2, "AI": 3,"/gestion_reunion":4}
     current_index = route_indexes.get(page.route, 0)
 
     view.navigation_bar = build_navbar(page, current_index)
