@@ -1,6 +1,6 @@
 """
 Vue ERP — Pilotage de la performance et recommandations IA.
-Style Arc-inspired.
+Style Arc-inspired. Mise à jour pour afficher les données enrichies.
 """
 
 import threading
@@ -11,7 +11,6 @@ from vues.theme import C, FONT
 from vues.navbar import build_navbar, nav_index_for
 from services.erp_service import get_erp_data, generate_erp_recommendations
 
-
 def build(page: ft.Page) -> ft.View:
 
     content_col = ft.Column(spacing=14)
@@ -20,39 +19,55 @@ def build(page: ft.Page) -> ft.View:
     def refresh():
         try:
             data = get_erp_data()
-            ca = data.get("chiffre_affaires", {})
-            marge = data.get("marge_globale", {})
-            retards = data.get("projets_en_retard", [])
+            fin = data.get("finance", {})
+            ops = data.get("operations", {})
+            
+            ca = fin.get("chiffre_affaires", {})
+            marge = fin.get("marge_globale", {})
+            treso = fin.get("tresorerie", {})
+            
+            retards = ops.get("projets_en_retard", [])
+            ventes = ops.get("top_ventes_services", [])
 
-            # ---- KPI Row ----
+            # ---- KPI Row (3 colonnes maintenant) ----
             kpi_row = ft.ResponsiveRow(
                 spacing=12, 
                 run_spacing=12,
                 controls=[
                     ft.Container(
-                        col={"xs": 12, "md": 6},
+                        col={"xs": 12, "md": 4},
                         content=T.stat_arc(
-                            "Chiffre d'affaires",
-                            f"{ca.get('realise', 0):,} {ca.get('devise', '')}",
-                            sub=f"Obj: {ca.get('objectif', 0):,}",
-                            color=C.success if ca.get('realise', 0) >= ca.get('objectif', 0) else C.warning,
+                            "CA (YTD)",
+                            f"{ca.get('realise_ytd', 0) / 1000000:.1f}M",
+                            sub=f"Obj: {ca.get('objectif_ytd', 0) / 1000000:.1f}M",
+                            color=C.warning,
                             size=90
                         )
                     ),
                     ft.Container(
-                        col={"xs": 12, "md": 6},
+                        col={"xs": 12, "md": 4},
                         content=T.stat_arc(
-                            "Marge globale",
-                            f"{marge.get('realise', 0)}{marge.get('unite', '%')}",
-                            sub=f"Obj: {marge.get('objectif', 0)}{marge.get('unite', '%')}",
+                            "Marge",
+                            f"{marge.get('realise', 0)}%",
+                            sub=f"Obj: {marge.get('objectif', 0)}%",
                             color=C.danger if marge.get('realise', 0) < marge.get('objectif', 0) else C.success,
+                            size=90
+                        )
+                    ),
+                    ft.Container(
+                        col={"xs": 12, "md": 4},
+                        content=T.stat_arc(
+                            "Trésorerie",
+                            f"{treso.get('disponible', 0) / 1000:.0f}K",
+                            sub=treso.get("statut", "").upper(),
+                            color=C.danger if treso.get("statut") == "critique" else C.success,
                             size=90
                         )
                     )
                 ]
             )
 
-            # ---- Retards ----
+            # ---- Retards (Avec causes) ----
             retards_col = ft.Column(spacing=8)
             for r in retards:
                 retards_col.controls.append(
@@ -63,7 +78,7 @@ def build(page: ft.Page) -> ft.View:
                             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                             controls=[
                                 ft.Column(
-                                    spacing=2, 
+                                    spacing=4, 
                                     expand=True, 
                                     controls=[
                                         ft.Text(
@@ -73,7 +88,7 @@ def build(page: ft.Page) -> ft.View:
                                             size=FONT.body
                                         ),
                                         ft.Text(
-                                            f"Client: {r['client']}", 
+                                            f"Client: {r['client']} | Cause: {r['cause']}", 
                                             color=C.text_subtle, 
                                             size=FONT.micro
                                         )
@@ -84,7 +99,7 @@ def build(page: ft.Page) -> ft.View:
                                     horizontal_alignment=ft.CrossAxisAlignment.END, 
                                     controls=[
                                         ft.Text(
-                                            f"{r['retard_jours']} jours de retard", 
+                                            f"{r['retard_jours']}j retard", 
                                             color=C.danger, 
                                             weight=ft.FontWeight.W_700, 
                                             size=FONT.small
@@ -103,7 +118,7 @@ def build(page: ft.Page) -> ft.View:
 
             content_col.controls = [
                 ft.Text(
-                    "Indicateurs Clés", 
+                    "Indicateurs Financiers", 
                     size=FONT.h2, 
                     color=C.text, 
                     weight=ft.FontWeight.W_700
@@ -114,7 +129,7 @@ def build(page: ft.Page) -> ft.View:
                     alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                     controls=[
                         ft.Text(
-                            "Alertes & Retards", 
+                            "Opérations : Projets en alerte", 
                             size=FONT.h2, 
                             color=C.text, 
                             weight=ft.FontWeight.W_700
@@ -154,7 +169,7 @@ def build(page: ft.Page) -> ft.View:
                             controls=[
                                 ft.Icon(ft.Icons.AUTO_AWESOME, color=C.accent, size=20), 
                                 ft.Text(
-                                    "Analyse & Recommandations", 
+                                    "Note Stratégique du Copilote IA", 
                                     color=C.text, 
                                     weight=ft.FontWeight.W_700, 
                                     size=FONT.h3
@@ -173,7 +188,7 @@ def build(page: ft.Page) -> ft.View:
         threading.Thread(target=work, daemon=True).start()
 
     btn_analysis = T.pill_button(
-        "Analyser la performance (IA)", 
+        "Générer une Note Stratégique (IA)", 
         icon=ft.Icons.ANALYTICS_OUTLINED, 
         on_click=do_analysis, 
         primary=False
@@ -204,13 +219,13 @@ def build(page: ft.Page) -> ft.View:
                 spacing=14, 
                 controls=[
                     ft.Text(
-                        "Performance SI", 
+                        "Tableau de Bord de Direction", 
                         size=FONT.display, 
                         color=C.text, 
                         weight=ft.FontWeight.W_700
                     ),
                     ft.Text(
-                        "Connecté en temps réel aux données de simulation.", 
+                        "Données SI synchronisées en temps réel.", 
                         size=FONT.small, 
                         color=C.text_subtle
                     ),

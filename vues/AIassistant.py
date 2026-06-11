@@ -122,13 +122,112 @@ def build(page: ft.Page) -> ft.View:
         page._chat_history.clear()
         page.update()
 
-    # ---- Mic placeholder (le code original l'avait, on garde) ----
+    # ─────────────────────────────────────────
+    # PUSH-TO-TALK : clic = écoute jusqu'au silence → transcription → champ
+    # ─────────────────────────────────────────
+    voice_state = {"recording": False, "lock": threading.Lock()}
+
     mic_btn = ft.IconButton(
         icon=ft.Icons.MIC_NONE_ROUNDED,
         icon_color=C.text_muted,
         icon_size=18,
-        tooltip="Reconnaissance vocale (à venir)",
+        tooltip="Parler à l'assistant",
     )
+
+    def _set_mic_idle():
+        mic_btn.icon = ft.Icons.MIC_NONE_ROUNDED
+        mic_btn.icon_color = C.text_muted
+        mic_btn.bgcolor = None
+        mic_btn.tooltip = "Parler à l'assistant"
+        field.hint_text = "Pose une question à l'assistant…"
+
+    def _set_mic_listening():
+        mic_btn.icon = ft.Icons.MIC_ROUNDED
+        mic_btn.icon_color = "#FFFFFF"
+        mic_btn.bgcolor = C.danger
+        mic_btn.tooltip = "Écoute en cours… reste silencieux pour terminer"
+        field.hint_text = "🎙️ Écoute en cours, parle maintenant…"
+
+    def _set_mic_processing():
+        mic_btn.icon = ft.Icons.HOURGLASS_TOP_ROUNDED
+        mic_btn.icon_color = C.accent
+        mic_btn.bgcolor = None
+        mic_btn.tooltip = "Transcription en cours…"
+        field.hint_text = "Transcription en cours…"
+
+    def voice_worker():
+        try:
+            # Import paresseux : si speech_recognition/pyaudio ne sont pas
+            # installés, ça plante seulement ici, pas au chargement de l'app
+            try:
+                import speech_recognition as sr
+            except ImportError as ex:
+                add_bubble(
+                    "Module 'speech_recognition' manquant. "
+                    f"Installe-le avec : pip install SpeechRecognition pyaudio\n({ex})",
+                    is_user=False, save=False)
+                return
+
+            recognizer = sr.Recognizer()
+            recognizer.pause_threshold = 1.0  # 1s de silence = fin
+
+            try:
+                mic = sr.Microphone()
+            except Exception as ex:
+                add_bubble(
+                    f"Micro indisponible (pyaudio manquant ou non autorisé) : {ex}",
+                    is_user=False, save=False)
+                return
+
+            with mic as source:
+                recognizer.adjust_for_ambient_noise(source, duration=0.4)
+                try:
+                    audio_data = recognizer.listen(
+                        source, timeout=8, phrase_time_limit=20)
+                except sr.WaitTimeoutError:
+                    add_bubble("⏱️ Aucun son détecté, réessaie.",
+                               is_user=False, save=False)
+                    return
+
+            _set_mic_processing()
+            page.update()
+
+            try:
+                text = recognizer.recognize_google(
+                    audio_data, language="fr-FR")
+            except sr.UnknownValueError:
+                add_bubble("🤷 Je n'ai pas compris, peux-tu répéter ?",
+                           is_user=False, save=False)
+                return
+            except sr.RequestError as ex:
+                add_bubble(f"Erreur reconnaissance vocale : {ex}",
+                           is_user=False, save=False)
+                return
+
+            if text:
+                field.value = (field.value or "") + (
+                    " " if field.value else "") + text
+
+        except Exception as ex:
+            add_bubble(f"Erreur micro : {ex}",
+                       is_user=False, save=False)
+        finally:
+            voice_state["recording"] = False
+            _set_mic_idle()
+            page.update()
+
+    def toggle_voice(e):
+        with voice_state["lock"]:
+            if voice_state["recording"]:
+                # Déjà en train d'enregistrer — on ignore (sr.listen gère le silence)
+                return
+            voice_state["recording"] = True
+        _set_mic_listening()
+        page.update()
+        threading.Thread(target=voice_worker, daemon=True).start()
+
+    mic_btn.on_click = toggle_voice
+
     send_btn = ft.IconButton(
         icon=ft.Icons.ARROW_UPWARD_ROUNDED,
         icon_color="#FFFFFF",

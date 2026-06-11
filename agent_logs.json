@@ -1,5 +1,65 @@
 [
   {
+    "timestamp": "2026-06-11T15:08:50",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-11T15:03:40",
+    "category": "EMAIL_OUT",
+    "description": "Email envoyé à Summon@gmail.com. Sujet: Invitation : Réunion à distance"
+  },
+  {
+    "timestamp": "2026-06-11T15:02:08",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-11T14:57:24",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-11T13:43:54",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-11T13:35:28",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-11T13:32:09",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-11T13:25:21",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-11T13:12:09",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-11T13:10:19",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-11T12:54:54",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-11T02:00:02",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
     "timestamp": "2026-06-10T22:52:01",
     "category": "SYSTEM",
     "description": "Service de relances automatiques (Scheduler) démarré avec succès."

@@ -436,34 +436,121 @@ def build(page: ft.Page) -> ft.View:
     # =====================================================
     def open_challenge_dialog(entry):
         body_holder = ft.Container(
-            width=380, height=380,
+            width=460, height=480,
             alignment=ft.Alignment.CENTER,
-            content=ft.ProgressRing(color=C.accent),
+            content=ft.Column(
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=10,
+                controls=[
+                    ft.ProgressRing(color=C.accent),
+                    ft.Text("Analyse critique du PV par Gemini…",
+                            color=C.text_subtle, size=FONT.micro, italic=True),
+                ],
+            ),
         )
         dialog = ft.AlertDialog(
             modal=False, bgcolor=C.bg_elevated,
-            title=ft.Text("Challenge IA", color=C.text,
-                          weight=ft.FontWeight.W_700, size=FONT.h3),
+            title=ft.Row(spacing=8, controls=[
+                ft.Icon(ft.Icons.PSYCHOLOGY_OUTLINED, color=C.accent, size=20),
+                ft.Text("Challenge IA — Analyse critique", color=C.text,
+                        weight=ft.FontWeight.W_700, size=FONT.h3),
+            ]),
             content=body_holder,
             actions=[ft.TextButton(
                 "Fermer", on_click=lambda _e: page.pop_dialog())],
         )
         page.show_dialog(dialog)
 
+        def _parse_sections(txt: str) -> dict:
+            """Parse la réponse Gemini en 4 sections (clé = emoji marqueur)."""
+            sections = {"🟣": [], "🟠": [], "🔵": [], "🟢": []}
+            current = None
+            for raw in txt.splitlines():
+                line = raw.strip()
+                if not line:
+                    continue
+                # Détection en-tête de section
+                hit = None
+                for marker in sections:
+                    if line.startswith(marker):
+                        hit = marker
+                        break
+                if hit:
+                    current = hit
+                    continue
+                if current is None:
+                    continue
+                # Nettoyage des puces
+                clean = line.lstrip("-•*·").strip()
+                if clean:
+                    sections[current].append(clean)
+            return sections
+
+        def _build_section_card(marker, title, color, items):
+            if not items:
+                items = ["(aucun élément retourné)"]
+            bullets = [
+                ft.Row(
+                    spacing=6,
+                    vertical_alignment=ft.CrossAxisAlignment.START,
+                    controls=[
+                        ft.Text("•", color=color, size=FONT.small,
+                                weight=ft.FontWeight.W_700),
+                        ft.Text(it, color=C.text, size=FONT.micro,
+                                selectable=True, expand=True,
+                                no_wrap=False),
+                    ],
+                ) for it in items
+            ]
+            return ft.Container(
+                bgcolor=C.bg_subtle,
+                border=ft.Border(
+                    top=ft.BorderSide(1, color),
+                    bottom=ft.BorderSide(1, color),
+                    left=ft.BorderSide(1, color),
+                    right=ft.BorderSide(1, color),
+                ),
+                border_radius=10,
+                padding=12,
+                content=ft.Column(spacing=8, controls=[
+                    ft.Row(spacing=6, controls=[
+                        ft.Text(marker, size=FONT.body),
+                        ft.Text(title, color=color, size=FONT.small,
+                                weight=ft.FontWeight.W_700),
+                    ]),
+                    ft.Column(spacing=6, controls=bullets),
+                ]),
+            )
+
         def work():
             try:
                 from services.meeting_service import challenge_meeting
                 resp = challenge_meeting(entry.get("analysis", {}))
+                parsed = _parse_sections(resp)
+                grid = ft.Column(
+                    spacing=10,
+                    scroll=ft.ScrollMode.AUTO,
+                    controls=[
+                        _build_section_card(
+                            "🟣", "Questions à poser",
+                            C.accent, parsed["🟣"]),
+                        _build_section_card(
+                            "🟠", "Risques identifiés",
+                            C.warning, parsed["🟠"]),
+                        _build_section_card(
+                            "🔵", "Alternatives possibles",
+                            getattr(C, "info", C.accent), parsed["🔵"]),
+                        _build_section_card(
+                            "🟢", "Actions manquantes",
+                            C.success, parsed["🟢"]),
+                    ],
+                )
+                body_holder.content = grid
             except Exception as e:
-                resp = f"Erreur : {e}"
-            body_holder.content = ft.Container(
-                expand=True,
-                content=ft.ListView(
-                    expand=True, spacing=4,
-                    controls=[ft.Text(resp, color=C.text, size=FONT.small,
-                                      selectable=True)],
-                ),
-            )
+                body_holder.content = ft.Text(
+                    f"Erreur : {e}", color=C.danger, size=FONT.small,
+                    selectable=True)
             page.update()
 
         threading.Thread(target=work, daemon=True).start()

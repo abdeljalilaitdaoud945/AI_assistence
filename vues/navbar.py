@@ -6,13 +6,13 @@ Labels toujours visibles, item actif beaucoup plus contrasté.
 import flet as ft
 from vues.theme import C, FONT
 
-
 # Mapping route -> index (utilisé par les vues pour calculer selected)
 ROUTE_TO_NAV = {
     "/":          0,
     "/mails":     1,
     "/rdv":       2,
     "/AI":        3,
+    "/reunion":   4,
     # Pages secondaires : héritent du parent
     "/settings":   0,
     "/bourse":     0,
@@ -23,22 +23,22 @@ ROUTE_TO_NAV = {
     "/calendrier": 2,
 }
 
-
 def nav_index_for(route: str) -> int:
     """Détermine l'index de l'onglet sélectionné à partir de la route."""
     return ROUTE_TO_NAV.get(route, 0)
 
-
 def build_navbar(page: ft.Page, selected: int = 0):
 
-    routes = ["/", "/mails", "/rdv", "/AI"]
+    # 5 Routes au lieu de 4
+    routes = ["/", "/mails", "/rdv", "/AI", "/reunion"]
     icons = [
         ft.Icons.HOME_ROUNDED,
         ft.Icons.MAIL_OUTLINE_ROUNDED,
         ft.Icons.EVENT_AVAILABLE_ROUNDED,
         ft.Icons.AUTO_AWESOME_OUTLINED,
+        ft.Icons.MIC_OUTLINED,
     ]
-    labels = ["Accueil", "Mails", "RDV", "Assistant"]
+    labels = ["Accueil", "Mails", "RDV", "Assistant", "Réunion"]
 
     async def _go(i):
         target = routes[i]
@@ -49,7 +49,6 @@ def build_navbar(page: ft.Page, selected: int = 0):
         active = i == selected
 
         if active:
-            # Item actif : bg violet saturé, icône + label en blanc
             bg = C.accent_strong
             icon_color = "#FFFFFF"
             text_color = "#FFFFFF"
@@ -59,7 +58,7 @@ def build_navbar(page: ft.Page, selected: int = 0):
             text_color = C.text_subtle
 
         return ft.Container(
-            padding=ft.Padding(left=14, top=8, right=14, bottom=8),
+            padding=ft.Padding(left=12, top=8, right=12, bottom=8),
             border_radius=999,
             bgcolor=bg,
             ink=True,

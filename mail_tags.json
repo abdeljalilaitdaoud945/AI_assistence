@@ -6,5 +6,53 @@
     "importance": "haute",
     "action_requise": true,
     "resume": "Ce mail de bienvenue de MEGA invite l'utilisateur à téléverser son premier fichier et à télécharger sa clé de récupération pour sécuriser son compte."
+  },
+  "19e954d7d85674a1": {
+    "type": "marketing",
+    "client": "",
+    "projet": "",
+    "importance": "normale",
+    "action_requise": false,
+    "resume": "MEGA confirme l'installation de l'application mobile et informe sur le traitement d'une prime d'objectif."
+  },
+  "19e93a00255a39e0": {
+    "type": "marketing",
+    "client": "",
+    "projet": "",
+    "importance": "basse",
+    "action_requise": false,
+    "resume": "Cet email est une interview avec Joanna Coles sur sa carrière dans les médias, l'évolution du journalisme et son travail avec Substack."
+  },
+  "19e84f1e2651c132": {
+    "type": "interne",
+    "client": "",
+    "projet": "",
+    "importance": "critique",
+    "action_requise": true,
+    "resume": "Alerte de sécurité concernant une nouvelle connexion à votre compte Google, nécessitant vérification."
+  },
+  "19e84f1e1aefe516": {
+    "type": "autre",
+    "client": "Google",
+    "projet": "",
+    "importance": "haute",
+    "action_requise": true,
+    "resume": "Le compte Google a été récupéré et il est recommandé de vérifier et protéger le compte en cas de perte d'accès due à un tiers."
+  },
+  "19eb384c1fa3146f": {
+    "type": "administratif",
+    "client": "",
+    "projet": "",
+    "importance": "normale",
+    "action_requise": false,
+    "resume": "Google met à jour ses paramètres de confidentialité pour les services de recherche, offrant de nouveaux contrôles sur l'historique et les recommandations personnalisées."
+  },
+  "19e4b90149361a18": {
+    "type": "marketing",
+    "client": "",
+    "projet": "Open Tab",
+    "importance": "normale",
+    "action_requise": false,
+    "resume": "Cet email présente un entretien avec Ashlee Vance, journaliste et cinéaste tech, qui discute de sa carrière, de sa biographie d'Elon Musk et de sa société de médias \"Core Memory\" sur Substack."
   }
 }

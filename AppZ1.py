@@ -1,5 +1,5 @@
 import flet as ft 
-from vues import home, mails, settings, AIassistant, rdv, calendrier, mailtotal, bourse, pdf, business, erp
+from vues import home, mails, settings, AIassistant, rdv, calendrier, mailtotal, bourse, pdf, business, erp, reunion, contacts
 from services.google_auth import get_credentials, get_user_info
 from services.scheduler_service import start_scheduler
 
@@ -15,6 +15,8 @@ ROUTE_BUILDERS = {
     "/pdf": pdf.build,
     "/business": business.build,
     "/erp": erp.build,
+    "/reunion": reunion.build,
+    "/contacts": contacts.build,
 }
 
 ROUTE_STACKS = {
@@ -29,6 +31,8 @@ ROUTE_STACKS = {
     "/pdf": ["/", "/pdf"],
     "/business": ["/", "/business"],
     "/erp": ["/", "/erp"],
+    "/reunion": ["/", "/reunion"],
+    "/contacts": ["/", "/reunion", "/contacts"],
 }
 
 def main(page: ft.Page):
@@ -36,7 +40,7 @@ def main(page: ft.Page):
     # Démarrage de la tâche de fond (relances automatiques)
     start_scheduler()
 
-    # JE MET CA EN COMMENTAIRE POUR METTRE LA CONNEXION GOOGLE EN PAUSE
+    # JE MET CA EN COMMENTAIRE POUR METTRE LA CONNEXION GOOGLE EN PAUSE (Retire les '#' si besoin)
     creds = get_credentials()          
     user = get_user_info(creds)                  
     
