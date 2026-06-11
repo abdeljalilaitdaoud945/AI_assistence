@@ -1,5 +1,5 @@
 import flet as ft 
-from vues import home, mails, settings, AIassistant, rdv, calendrier, mailtotal,,gestion_reunion #### ici
+from vues import home, mails, settings, AIassistant, rdv, calendrier, mailtotal,gestion_reunion #### ici
 from services.google_auth import get_credentials, get_user_info
 
 ROUTE_BUILDERS = {
