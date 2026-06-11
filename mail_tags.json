@@ -54,5 +54,29 @@
     "importance": "normale",
     "action_requise": false,
     "resume": "Cet email présente un entretien avec Ashlee Vance, journaliste et cinéaste tech, qui discute de sa carrière, de sa biographie d'Elon Musk et de sa société de médias \"Core Memory\" sur Substack."
+  },
+  "19e6f5dcd4303ca7": {
+    "type": "marketing",
+    "client": "",
+    "projet": "",
+    "importance": "normale",
+    "action_requise": false,
+    "resume": "Interview avec Kevin Kelly sur son parcours dans la tech et les médias, la théorie des '1000 vrais fans' et l'avenir de l'IA."
+  },
+  "19e1cf60480ffcbf": {
+    "type": "marketing",
+    "client": "Esther Perel",
+    "projet": "Open Tab",
+    "importance": "basse",
+    "action_requise": false,
+    "resume": "Substack présente une interview avec Esther Perel dans sa série 'Open Tab', abordant sa carrière, son entreprise et ses réflexions sur les relations et l'IA en thérapie."
+  },
+  "19e0335bada0f852": {
+    "type": "marketing",
+    "client": "Feed Me",
+    "projet": "Open Tab",
+    "importance": "normale",
+    "action_requise": false,
+    "resume": "Substack présente une interview avec Emily Sundberg, fondatrice de la newsletter 'Feed Me', discutant de la création de son entreprise médiatique indépendante."
   }
 }

@@ -58,7 +58,11 @@ def build(page: ft.Page) -> ft.View:
         f_stage = ft.Dropdown(
             label="Stage",
             value=deal.get("stage", "demande"),
-            options=[ft.dropdown.Option(key=s, text=STAGE_LABELS[s]) for s in STAGE_IDS],
+            options=[ft.dropdown.Option(
+                        key=s, text=STAGE_LABELS[s],
+                        content=ft.Text(STAGE_LABELS[s],
+                                        color=C.text, size=FONT.body))
+                     for s in STAGE_IDS],
             bgcolor=C.bg_subtle, 
             border_color=C.border,
             color=C.text, 

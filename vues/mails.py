@@ -118,10 +118,14 @@ def open_mail_detail(page, message_id, fallback_subject="", fallback_sender=""):
     tone_dropdown = ft.Dropdown(
         label="Ton de la réponse",
         options=[
-            ft.dropdown.Option(key="cordial", text="Cordial"),
-            ft.dropdown.Option(key="commercial", text="Commercial"),
-            ft.dropdown.Option(key="administratif", text="Administratif"),
-            ft.dropdown.Option(key="strategique", text="Stratégique (Ferme)"),
+            ft.dropdown.Option(key="cordial", text="Cordial",
+                content=ft.Text("Cordial", color=C.text, size=FONT.body)),
+            ft.dropdown.Option(key="commercial", text="Commercial",
+                content=ft.Text("Commercial", color=C.text, size=FONT.body)),
+            ft.dropdown.Option(key="administratif", text="Administratif",
+                content=ft.Text("Administratif", color=C.text, size=FONT.body)),
+            ft.dropdown.Option(key="strategique", text="Stratégique (Ferme)",
+                content=ft.Text("Stratégique (Ferme)", color=C.text, size=FONT.body)),
         ],
         value="cordial",
         bgcolor=C.bg_subtle, color=C.text, border_color=C.border,

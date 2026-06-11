@@ -166,7 +166,12 @@ def build(page: ft.Page) -> ft.View:
             # Remplissage du Dropdown avec tes vrais contacts enregistrés
             all_contacts = get_contacts()
             contacts_dropdown.options = [
-                ft.dropdown.Option(key=c["email"], text=f"{c['nom']} ({c['email']})") 
+                ft.dropdown.Option(
+                    key=c["email"],
+                    text=f"{c['nom']} ({c['email']})",
+                    content=ft.Text(f"{c['nom']} ({c['email']})",
+                                    color=C.text, size=FONT.body),
+                )
                 for c in all_contacts
             ]
             
@@ -245,7 +250,10 @@ def build(page: ft.Page) -> ft.View:
         label_style=ft.TextStyle(color=C.text_subtle),
         text_style=ft.TextStyle(color=C.text), 
         border_radius=10,
-        options=[ft.dropdown.Option(key=t, text=t) for t in TYPES_REUNION],
+        options=[ft.dropdown.Option(
+                    key=t, text=t,
+                    content=ft.Text(t, color=C.text, size=FONT.body))
+                 for t in TYPES_REUNION],
     )
 
     info_card = T.card(

@@ -224,6 +224,57 @@ def divider(opacity=1.0):
 
 
 # =====================================================================
+# DROPDOWN helpers — corrigent le bug "options noir sur noir" en Flet 0.85.1
+# =====================================================================
+
+def dropdown_option(key, text=None):
+    """Crée une option de dropdown avec texte forcé en clair pour rester
+    lisible quand le menu déroulant s'ouvre sur fond sombre.
+    Note Flet 0.85.1 : ft.dropdown.Option n'accepte pas text_style. On passe
+    par `content` (ft.Text coloré) qui remplace le rendu par défaut."""
+    label = text if text is not None else str(key)
+    return ft.dropdown.Option(
+        key=key,
+        text=label,
+        content=ft.Text(label, color=C.text, size=FONT.body),
+    )
+
+
+def dropdown(label, options, value=None, width=None, **kwargs):
+    """Dropdown avec style cohérent + options lisibles. `options` peut être :
+      - une liste de tuples (key, label)
+      - une liste de strings (key == label)
+      - une liste d'objets ft.dropdown.Option déjà construits
+    """
+    built = []
+    for opt in options:
+        if isinstance(opt, ft.dropdown.Option):
+            # Si pas de content custom, on en ajoute un pour la lisibilité
+            if getattr(opt, "content", None) is None:
+                opt.content = ft.Text(opt.text or str(opt.key),
+                                      color=C.text, size=FONT.body)
+            built.append(opt)
+        elif isinstance(opt, tuple) and len(opt) == 2:
+            built.append(dropdown_option(opt[0], opt[1]))
+        else:
+            built.append(dropdown_option(str(opt)))
+
+    return ft.Dropdown(
+        label=label,
+        value=value,
+        options=built,
+        bgcolor=C.bg_subtle,
+        border_color=C.border,
+        focused_border_color=C.accent,
+        color=C.text,
+        label_style=ft.TextStyle(color=C.text_subtle),
+        text_style=ft.TextStyle(color=C.text),
+        width=width,
+        **kwargs,
+    )
+
+
+# =====================================================================
 # GRAPHIQUES — formes complexes via flet.canvas
 # =====================================================================
 

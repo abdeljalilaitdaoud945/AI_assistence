@@ -92,18 +92,26 @@ def get_erp_summary_text() -> str:
     return "\n".join(lines)
 
 def generate_erp_recommendations() -> str:
-    """Demande à Gemini d'analyser les données complexes et de proposer un plan d'action."""
+    """Demande à Gemini d'analyser les données complexes et de proposer un plan d'action.
+    Format de sortie strict avec marqueurs emoji pour parsing UI."""
     try:
         client = genai.Client()
         data_str = json.dumps(ERP_DATA, indent=2, ensure_ascii=False)
         prompt = (
-            "Tu es le Directeur Général Adjoint (stratégie et finance). Analyse ces données complexes issues de notre ERP :\n"
+            "Tu es le Directeur Général Adjoint (stratégie et finance) d'une "
+            "société de conseil/IT marocaine. Analyse ces données ERP :\n"
             f"{data_str}\n\n"
-            "Rédige une note stratégique très professionnelle (max 300 mots) structurée ainsi :\n"
-            "1. 🔴 ALERTE FINANCIÈRE : Analyse la trésorerie, le CA et les impayés.\n"
-            "2. 🟠 RISQUES OPÉRATIONNELS : Analyse les retards (mentionne les causes et clients) et le taux d'occupation.\n"
-            "3. 🟢 PLAN D'ACTION IMMÉDIAT : 3 directives claires et actionnables pour le CODIR.\n"
-            "Sois percutant, utilise un vocabulaire de pilotage d'entreprise."
+            "Rédige une note stratégique percutante (max 280 mots) avec EXACTEMENT "
+            "ce format, sans introduction ni conclusion :\n\n"
+            "🔴 ALERTE FINANCIÈRE\n"
+            "- (3 points max, bullets courts, factuels, chiffrés)\n\n"
+            "🟠 RISQUES OPÉRATIONNELS\n"
+            "- (3 points max, mentionne projets/clients/causes)\n\n"
+            "🟢 PLAN D'ACTION IMMÉDIAT\n"
+            "- (3 directives actionnables court terme)\n\n"
+            "Règles strictes : chaque section commence EXACTEMENT par son emoji et son titre. "
+            "Chaque bullet commence par '- '. Pas de texte hors sections. "
+            "Vocabulaire pilotage CODIR, ton ferme et chiffré."
         )
         response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
         return response.text
