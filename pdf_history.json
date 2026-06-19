@@ -1,0 +1,173 @@
+[
+  {
+    "id": "34254f405d7840539f00e4eaa209507a",
+    "source": "local",
+    "filename": "PV_CODIR_2026-06-12.pdf",
+    "drive_id": null,
+    "analyzed_at": "2026-06-15T12:46:49",
+    "analysis": {
+      "resume": "Ce compte-rendu du Comité de Direction du 12 juin 2026 fait état d'une performance Q2 2026 inférieure aux objectifs et d'une trésorerie sous le seuil d'alerte. Des décisions ont été prises pour relancer les impayés, recruter des DevOps, renégocier un contrat et créer un comité de pilotage des projets critiques. Un plan d'action détaillé a été établi avec des échéances précises pour chaque tâche.",
+      "participants": [
+        "Karim Bensalem",
+        "Salma El Idrissi",
+        "Younes Tahiri",
+        "Nadia Berrada",
+        "Omar Sahel",
+        "Leïla Cherkaoui"
+      ],
+      "decisions": [
+        "Lancer une campagne de relance des impayés avec un objectif de 250 K MAD en 30 jours.",
+        "Recruter 2 DevOps seniors avant fin juillet 2026.",
+        "Renégocier le contrat AutoMaroc avec un avenant.",
+        "Créer un comité hebdomadaire de pilotage des projets critiques."
+      ],
+      "evenements": [
+        {
+          "titre": "Comité pilotage projets critiques",
+          "date": "2026-06-18",
+          "heure_debut": "10:00",
+          "heure_fin": "",
+          "lieu": "",
+          "description": ""
+        },
+        {
+          "titre": "Point trésorerie DAF",
+          "date": "2026-06-24",
+          "heure_debut": "14:30",
+          "heure_fin": "",
+          "lieu": "",
+          "description": ""
+        },
+        {
+          "titre": "Prochain CODIR",
+          "date": "2026-06-26",
+          "heure_debut": "09:00",
+          "heure_fin": "",
+          "lieu": "",
+          "description": ""
+        }
+      ],
+      "taches": [
+        {
+          "titre": "Relancer factures Groupe ONA et Ministère",
+          "deadline": "2026-06-19",
+          "description": "Responsable: S. El Idrissi. Objectif: 250 K MAD recouvrés."
+        },
+        {
+          "titre": "Publier offres DevOps senior",
+          "deadline": "2026-06-15",
+          "description": "Responsable: L. Cherkaoui. Objectif: 2 recrutements effectifs."
+        },
+        {
+          "titre": "Préparer avenant contractuel AutoMaroc",
+          "deadline": "2026-06-22",
+          "description": "Responsable: Y. Tahiri. Objectif: Avenant signé."
+        },
+        {
+          "titre": "Lancer comité de pilotage",
+          "deadline": "2026-06-18",
+          "description": "Responsable: N. Berrada. Objectif: CR hebdomadaire."
+        },
+        {
+          "titre": "Établir un plan de structuration pour la BU Cybersécurité",
+          "deadline": "2026-07-31",
+          "description": "Responsable: O. Sahel. Objectif: Document validé par le CODIR."
+        }
+      ],
+      "_raw_text_preview": "Procès-Verbal — Comité de Direction\nDate : 12 juin 2026 — 09h00 à 11h00\nType : Réunion stratégique trimestrielle\nLieu : Siège social — Salle Atlas, 4ème étage\nAnimateur : Karim Bensalem (DG)\nParticipants\nKarim Bensalem (Directeur Général), Salma El Idrissi (Directrice Financière), Younes Tahiri\n(Directeur Commercial), Nadia Berrada (Directrice Opérations), Omar Sahel (CTO), Leïla Cherkaoui\n(RH).\nPoints abordés\n1. Performance Q2 2026. CA YTD à 12,5 M MAD pour un objectif de 15 M, écart négatif de"
+    }
+  },
+  {
+    "id": "10205bb4982d4d028d8c981de41ce615",
+    "source": "local",
+    "filename": "PV_CODIR_2026-06-12.pdf",
+    "drive_id": null,
+    "analyzed_at": "2026-06-15T13:03:36",
+    "analysis": {
+      "resume": "Le Comité de Direction a examiné la performance du T2 2026, qui est en deçà des objectifs, et a noté une trésorerie critique due aux impayés. Des projets majeurs sont en alerte. Des décisions ont été prises pour relancer les impayés, recruter des DevOps, renégocier un contrat et créer un comité de pilotage des projets critiques.",
+      "participants": [
+        "Karim Bensalem (Directeur Général)",
+        "Salma El Idrissi (Directrice Financière)",
+        "Younes Tahiri (Directeur Commercial)",
+        "Nadia Berrada (Directrice Opérations)",
+        "Omar Sahel (CTO)",
+        "Leïla Cherkaoui (RH)"
+      ],
+      "decisions": [
+        "Lancement campagne de relance impayés (objectif 250 K MAD/30j)",
+        "Recrutement de 2 DevOps seniors avant fin juillet 2026",
+        "Renégociation contrat AutoMaroc avec avenant",
+        "Création comité hebdo de pilotage projets critiques"
+      ],
+      "evenements": [
+        {
+          "titre": "Comité pilotage projets critiques",
+          "date": "2026-06-18",
+          "heure_debut": "10:00",
+          "heure_fin": "",
+          "lieu": "",
+          "description": ""
+        },
+        {
+          "titre": "Point trésorerie DAF",
+          "date": "2026-06-24",
+          "heure_debut": "14:30",
+          "heure_fin": "",
+          "lieu": "",
+          "description": ""
+        },
+        {
+          "titre": "Prochain CODIR",
+          "date": "2026-06-26",
+          "heure_debut": "09:00",
+          "heure_fin": "",
+          "lieu": "",
+          "description": ""
+        }
+      ],
+      "taches": [
+        {
+          "titre": "Relancer factures Groupe ONA et Ministère",
+          "deadline": "2026-06-19",
+          "description": "Responsable: S. El Idrissi. Objectif: 250 K MAD recouvrés."
+        },
+        {
+          "titre": "Publier offres DevOps senior",
+          "deadline": "2026-06-15",
+          "description": "Responsable: L. Cherkaoui. Objectif: 2 recrutements effectifs."
+        },
+        {
+          "titre": "Préparer avenant contractuel AutoMaroc",
+          "deadline": "2026-06-22",
+          "description": "Responsable: Y. Tahiri. Objectif: Avenant signé."
+        },
+        {
+          "titre": "Lancer comité de pilotage",
+          "deadline": "2026-06-18",
+          "description": "Responsable: N. Berrada. Objectif: CR hebdomadaire."
+        },
+        {
+          "titre": "Structurer la BU Cybersécurité",
+          "deadline": "2026-07-31",
+          "description": "Responsable: O. Sahel. Objectif: Document validé par CODIR."
+        }
+      ],
+      "_raw_text_preview": "Procès-Verbal — Comité de Direction\nDate : 12 juin 2026 — 09h00 à 11h00\nType : Réunion stratégique trimestrielle\nLieu : Siège social — Salle Atlas, 4ème étage\nAnimateur : Karim Bensalem (DG)\nParticipants\nKarim Bensalem (Directeur Général), Salma El Idrissi (Directrice Financière), Younes Tahiri\n(Directeur Commercial), Nadia Berrada (Directrice Opérations), Omar Sahel (CTO), Leïla Cherkaoui\n(RH).\nPoints abordés\n1. Performance Q2 2026. CA YTD à 12,5 M MAD pour un objectif de 15 M, écart négatif de"
+    }
+  },
+  {
+    "id": "2e465944c94a4349805ea1371007b449",
+    "source": "local",
+    "filename": "rapport_fr.pdf",
+    "drive_id": null,
+    "analyzed_at": "2026-06-17T14:26:48",
+    "analysis": {
+      "error": "La bibliothèque pypdf n'est pas installée. Lance : pip install pypdf. Détail : No module named 'pypdf'",
+      "resume": "",
+      "participants": [],
+      "decisions": [],
+      "evenements": [],
+      "taches": []
+    }
+  }
+]

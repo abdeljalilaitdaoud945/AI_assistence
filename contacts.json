@@ -1,8 +1,52 @@
 [
   {
-    "id": "9c8214b6-c73d-4528-9670-f3a6246c1fba",
-    "nom": "RH Samir",
-    "email": "Summon@gmail.com",
-    "role": "RH"
+    "nom": "Karim Bensalem",
+    "email": "karim.bensalem@example.com",
+    "role": "DG — Direction Générale"
+  },
+  {
+    "nom": "Salma El Idrissi",
+    "email": "salma.elidrissi@example.com",
+    "role": "DAF — Direction Financière"
+  },
+  {
+    "nom": "Younes Tahiri",
+    "email": "younes.tahiri@example.com",
+    "role": "Directeur Commercial"
+  },
+  {
+    "nom": "Nadia Berrada",
+    "email": "nadia.berrada@example.com",
+    "role": "Directrice Opérations"
+  },
+  {
+    "nom": "Omar Sahel",
+    "email": "omar.sahel@example.com",
+    "role": "CTO"
+  },
+  {
+    "nom": "Leïla Cherkaoui",
+    "email": "leila.cherkaoui@example.com",
+    "role": "DRH"
+  },
+  {
+    "nom": "Rachid Amrani",
+    "email": "rachid.amrani@techcorp.ma",
+    "role": "Account Manager — TechCorp"
+  },
+  {
+    "nom": "Sarah Lahlou",
+    "email": "sarah.lahlou@example.com",
+    "role": "Customer Success"
+  },
+  {
+    "nom": "Mehdi Benali",
+    "email": "mehdi.benali@example.com",
+    "role": "Tech Lead Cloud"
+  },
+  {
+    "nom": "Aïcha Ouali",
+    "email": "aicha.ouali@example.com",
+    "role": "Contrôleuse de gestion"
   }
 ]

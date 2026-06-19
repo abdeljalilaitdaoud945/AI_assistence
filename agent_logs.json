@@ -1,5 +1,335 @@
 [
   {
+    "timestamp": "2026-06-19T22:36:23",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-17T21:15:38",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-17T14:51:59",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-17T14:31:22",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Structurer la BU Cybersécurité' le 2026-07-31 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-17T14:31:21",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Lancer comité de pilotage' le 2026-06-18 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-17T14:31:19",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Préparer avenant contractuel AutoMaroc' le 2026-06-22 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-17T14:31:18",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Publier offres DevOps senior' le 2026-06-15 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-17T14:27:42",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-17T13:55:11",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-17T13:54:08",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-17T13:53:22",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T18:38:42",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T18:37:51",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T18:28:48",
+    "category": "RELANCE_AUTO",
+    "description": "Email de relance généré pour le 2026-06-17.\nContenu :\nBonjour à tous,\n\nCeci est une relance automatique de votre Assistant IA concernant vos engagements pour la journée du 2026-06-17.\n\n📅 Événements prévus :\n📅 📌 Mettre en place point hebdo mardi\n⏰ 08:00 - 09:00\n✅ Confirmé\n---\n📅 📌 Mettre en place point hebdo mardi\n⏰ 08:00 - 09:00\n✅ Confirmé\n---\n📅 Point hebdo TechCorp\n⏰ 09:00 - 10:00\n✅ Confirmé\n---\n📅 Point hebdo TechCorp\n⏰ 09:00 - 10:00\n✅ Confirmé\n\n⚠️ Rappel de vos actions en attente :\n  - Rédiger devis Kubernetes 380K (Resp/Contexte: Responsable: Y. Tahiri, Priorité: Court terme, Indicateur: Devis envoyé) | Échéance: 2026-06-20\n  - Affecter DevOps senior (Resp/Contexte: Responsable: O. Sahel, Priorité: Court terme, Indicateur: Profil affecté) | Échéance: 2026-06-30\n  - Mettre en place point hebdo mardi (Resp/Contexte: Responsable: R. Amrani, Priorité: Court terme, Indicateur: Invitation récurrente) | Échéance: 2026-06-17\n  - Préparer dossier renouvellement (Resp/Contexte: Responsable: S. Lahlou, Priorité: Moyen terme, Indicateur: Dossier prêt) | Échéance: 2026-07-15\n\nMerci de mettre à jour votre avancement avant la réunion.\n"
+  },
+  {
+    "timestamp": "2026-06-15T18:28:47",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T14:37:36",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Préparer dossier renouvellement' le 2026-07-15 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:37:36",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Mettre en place point hebdo mardi' le 2026-06-17 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:37:35",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Affecter DevOps senior' le 2026-06-30 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:37:34",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Rédiger devis Kubernetes 380K' le 2026-06-20 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:37:33",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: 'Atelier renouvellement' le 2026-07-10 (14:00-15:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:37:33",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: 'Présentation devis Kubernetes' le 2026-06-23 (11:00-12:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:37:32",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: 'Point hebdo TechCorp' le 2026-06-17 (10:00-11:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:37:32",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Préparer dossier renouvellement' le 2026-07-15 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:37:31",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Mettre en place point hebdo mardi' le 2026-06-17 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:37:30",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Affecter DevOps senior' le 2026-06-30 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:37:29",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Rédiger devis Kubernetes 380K' le 2026-06-20 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:37:29",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: 'Atelier renouvellement' le 2026-07-10 (14:00-15:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:37:28",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: 'Présentation devis Kubernetes' le 2026-06-23 (11:00-12:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:37:27",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: 'Point hebdo TechCorp' le 2026-06-17 (10:00-11:00)"
+  },
+  {
+    "timestamp": "2026-06-15T14:32:53",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T14:19:36",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T14:06:11",
+    "category": "SYSTEM_ERROR",
+    "description": "Erreur du planificateur : [WinError 10048] Une seule utilisation de chaque adresse de socket (protocole/adresse réseau/port) est habituellement autorisée"
+  },
+  {
+    "timestamp": "2026-06-15T14:06:11",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T13:39:36",
+    "category": "EMAIL_OUT",
+    "description": "Email envoyé à salma.elidrissi@example.com. Sujet: Invitation : Réunion à distance"
+  },
+  {
+    "timestamp": "2026-06-15T13:20:41",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T13:18:46",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T13:17:52",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T13:12:04",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T13:08:46",
+    "category": "EVENT_DELETED",
+    "description": "Événement supprimé (ID: uarr6tvoi60juetqnl64sj8i58)"
+  },
+  {
+    "timestamp": "2026-06-15T13:08:37",
+    "category": "EVENT_DELETED",
+    "description": "Événement supprimé (ID: 9lfd3h12d0u6fpp44udv6v1jsc)"
+  },
+  {
+    "timestamp": "2026-06-15T13:08:27",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T13:07:26",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T13:02:22",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T12:58:13",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T12:55:05",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T12:54:15",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-15T12:47:09",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Établir un plan de structuration pour la BU Cybersécurité' le 2026-07-31 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:09",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Lancer comité de pilotage' le 2026-06-18 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:08",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Préparer avenant contractuel AutoMaroc' le 2026-06-22 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:07",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Publier offres DevOps senior' le 2026-06-15 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:06",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Relancer factures Groupe ONA et Ministère' le 2026-06-19 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:06",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: 'Prochain CODIR' le 2026-06-26 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:05",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: 'Point trésorerie DAF' le 2026-06-24 (14:30-15:30)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:04",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: 'Comité pilotage projets critiques' le 2026-06-18 (10:00-11:00)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:04",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Établir un plan de structuration pour la BU Cybersécurité' le 2026-07-31 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:04",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Lancer comité de pilotage' le 2026-06-18 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:03",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Préparer avenant contractuel AutoMaroc' le 2026-06-22 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:02",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Publier offres DevOps senior' le 2026-06-15 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:01",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: '📌 Relancer factures Groupe ONA et Ministère' le 2026-06-19 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:01",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: 'Prochain CODIR' le 2026-06-26 (09:00-10:00)"
+  },
+  {
+    "timestamp": "2026-06-15T12:47:00",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: 'Point trésorerie DAF' le 2026-06-24 (14:30-15:30)"
+  },
+  {
+    "timestamp": "2026-06-15T12:46:59",
+    "category": "EVENT_CREATED",
+    "description": "Rendez-vous créé: 'Comité pilotage projets critiques' le 2026-06-18 (10:00-11:00)"
+  },
+  {
+    "timestamp": "2026-06-15T00:09:55",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-14T23:19:33",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-14T20:48:36",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
+    "timestamp": "2026-06-11T17:04:30",
+    "category": "SYSTEM",
+    "description": "Service de relances automatiques (Scheduler) démarré avec succès."
+  },
+  {
     "timestamp": "2026-06-11T15:24:06",
     "category": "SYSTEM",
     "description": "Service de relances automatiques (Scheduler) démarré avec succès."

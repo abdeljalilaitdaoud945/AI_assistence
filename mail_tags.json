@@ -78,5 +78,117 @@
     "importance": "normale",
     "action_requise": false,
     "resume": "Substack présente une interview avec Emily Sundberg, fondatrice de la newsletter 'Feed Me', discutant de la création de son entreprise médiatique indépendante."
+  },
+  "19eb773da952e0f1": {
+    "type": "marketing",
+    "client": "",
+    "projet": "Open Tab",
+    "importance": "basse",
+    "action_requise": true,
+    "resume": "Cet email présente une interview avec le journaliste Lachlan Cartwright sur sa carrière, son expérience au National Enquirer et sa newsletter Breaker."
+  },
+  "19ecb4b689f4d44e": {
+    "type": "autre",
+    "client": "",
+    "projet": "",
+    "importance": "normale",
+    "action_requise": true,
+    "resume": "Votre message n'a pas pu être livré à salma.elidrissi@example.com car le domaine est introuvable."
+  },
+  "19ed48c71ed040df": {
+    "type": "interne",
+    "client": "",
+    "projet": "",
+    "importance": "basse",
+    "action_requise": true,
+    "resume": "Mohamed Taha EL HOUSSAINI vous rappelle qu'il attend votre réponse à son invitation de connexion sur LinkedIn."
+  },
+  "19ed3e648c4e4f89": {
+    "type": "marketing",
+    "client": "Kaggle",
+    "projet": "The Pokémon Trading Card Game AI Battle Challenge",
+    "importance": "normale",
+    "action_requise": false,
+    "resume": "Kaggle annonce le lancement d'une compétition d'IA sur le jeu de cartes Pokémon TCG, invitant les participants à construire des agents d'IA pour des défis de simulation et de stratégie avec des prix allant jusqu'à 240 000 $."
+  },
+  "19ed2b1e36089e76": {
+    "type": "marketing",
+    "client": "Order Capital",
+    "projet": "Order Capital Round 2 (Codeforces Round 1104, Div. 1 + Div. 2)",
+    "importance": "normale",
+    "action_requise": true,
+    "resume": "Cet email est une invitation à un concours de programmation Codeforces sponsorisé par Order Capital, offrant des prix et des opportunités de recrutement."
+  },
+  "19ed26712e6be219": {
+    "type": "marketing",
+    "client": "",
+    "projet": "",
+    "importance": "normale",
+    "action_requise": true,
+    "resume": "LinkedIn envoie des offres d'emploi pour des postes de Scientifique des données chez AXA Assurance Maroc et Swift Innovation Solutions."
+  },
+  "19ed0b0c3b39f0bb": {
+    "type": "marketing",
+    "client": "",
+    "projet": "n8n Fest",
+    "importance": "normale",
+    "action_requise": true,
+    "resume": "Ce mail de n8n annonce le n8n Fest, invite les DJs à postuler, présente un podcast, un template, des événements communautaires et des offres d'emploi."
+  },
+  "19ed0f19927283f1": {
+    "type": "marketing",
+    "client": "",
+    "projet": "",
+    "importance": "basse",
+    "action_requise": true,
+    "resume": "LinkedIn vous invite à jouer à ses jeux de réflexion quotidiens pour vous ressourcer."
+  },
+  "19ecf98c163b149a": {
+    "type": "marketing",
+    "client": "",
+    "projet": "",
+    "importance": "normale",
+    "action_requise": true,
+    "resume": "DataCamp promeut des sessions gratuites, de nouveaux cours et des offres sur l'IA dans les services financiers."
+  },
+  "19eccefa261e2b3c": {
+    "type": "autre",
+    "client": "",
+    "projet": "",
+    "importance": "basse",
+    "action_requise": false,
+    "resume": "Cet email de LinkedIn informe sur les publications récentes de vos contacts sur le réseau."
+  },
+  "19ecc7e63d851a75": {
+    "type": "marketing",
+    "client": "",
+    "projet": "Snowflake courses",
+    "importance": "normale",
+    "action_requise": true,
+    "resume": "DataCamp offre un accès gratuit à ses cours Snowflake et une réduction sur l'examen de certification SnowPro Core jusqu'au 29 juin."
+  },
+  "19ecba677026bad4": {
+    "type": "marketing",
+    "client": "",
+    "projet": "Guidy",
+    "importance": "normale",
+    "action_requise": true,
+    "resume": "L'équipe 365 prolonge l'offre de précommande anticipée pour Guidy de 48 heures et répond aux questions fréquentes sur le produit."
+  },
+  "19ecbf740a567457": {
+    "type": "marketing",
+    "client": "",
+    "projet": "",
+    "importance": "basse",
+    "action_requise": false,
+    "resume": "LinkedIn informe que suivre plus de personnes peut augmenter les vues de profil."
+  },
+  "19ec5a574810199c": {
+    "type": "marketing",
+    "client": "",
+    "projet": "",
+    "importance": "normale",
+    "action_requise": true,
+    "resume": "Udemy propose une dernière chance de s'abonner à son plan personnel annuel pour apprendre et développer ses compétences."
   }
 }

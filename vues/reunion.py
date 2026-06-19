@@ -375,17 +375,41 @@ def build(page: ft.Page) -> ft.View:
     # MODE 1 : CHARGER UN FICHIER AUDIO
     # ─────────────────────────────────────────
     def pick_file_result(e):
-        if e.files and len(e.files) > 0:
-            filepath = e.files[0].path
-            if not filepath:
-                set_status("⚠️ Chemin inaccessible. Lance l'app en mode desktop.", C.danger)
-                return
-            selected_file_text.value = f"📂 {os.path.basename(filepath)}"
-            page.update()
-            threading.Thread(target=transcribe_audio_file, args=(filepath,), daemon=True).start()
-        else:
+        if not e.files or len(e.files) == 0:
             selected_file_text.value = "Aucun fichier sélectionné"
             page.update()
+            return
+
+        f = e.files[0]
+        filename = f.name
+        selected_file_text.value = f"📂 {filename}"
+        page.update()
+
+        # En Flet 0.85.1 mode web, f.path est None (sécurité navigateur).
+        # On utilise les bytes (avec_data=True) et on les écrit dans un fichier temp.
+        import tempfile, os as _os
+
+        def _process():
+            try:
+                tmp_path = None
+                if f.path:
+                    # Mode desktop : on a direct le chemin
+                    tmp_path = f.path
+                elif getattr(f, "bytes", None):
+                    # Mode web : on écrit les bytes dans un fichier temporaire
+                    ext = _os.path.splitext(filename)[1] or ".wav"
+                    fd, tmp_path = tempfile.mkstemp(suffix=ext)
+                    with _os.fdopen(fd, "wb") as out:
+                        out.write(f.bytes)
+                else:
+                    set_status("⚠️ Impossible de lire le fichier audio (pas de path ni de bytes).", C.danger)
+                    return
+
+                transcribe_audio_file(tmp_path)
+            except Exception as ex:
+                set_status(f"Erreur chargement audio : {ex}", C.danger)
+
+        threading.Thread(target=_process, daemon=True).start()
 
     file_picker = ft.FilePicker()
     file_picker.on_result = pick_file_result
@@ -396,13 +420,14 @@ def build(page: ft.Page) -> ft.View:
     except Exception as _e:
         print(f"[reunion vue] FilePicker register fallback: {_e}")
 
-    def open_file_picker(e):
+    async def open_file_picker(e):
         transcript_box.controls.clear()
         state["transcript_lines"].clear()
         page.update()
-        file_picker.pick_files(
+        await file_picker.pick_files(
             dialog_title="Sélectionner un enregistrement audio",
             allowed_extensions=["wav", "mp3", "ogg", "flac"],
+            with_data=True,  # CRITIQUE en mode web : sinon f.bytes est None
         )
 
     file_card = T.card(

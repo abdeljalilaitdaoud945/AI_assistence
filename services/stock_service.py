@@ -588,8 +588,15 @@ def search_symbol_text(query: str) -> str:
     return "\n".join(lines)
 
 
-def compare_stocks_text(symbols: list) -> str:
-    """Compare plusieurs valeurs côte à côte."""
+from typing import List
+
+
+def compare_stocks_text(symbols: List[str]) -> str:
+    """Compare plusieurs valeurs boursières côte à côte. 
+    
+    Args:
+        symbols: Liste de tickers boursiers (ex: ["AAPL", "MSFT", "GOOGL"]).
+    """
     if not symbols:
         return "Aucun symbole à comparer."
     lines = ["📊 Comparaison :\n"]

@@ -4,7 +4,9 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from services.calendar_service import get_events, create_event, delete_event, list_upcoming_events
+from services.calendar_service import (
+    get_events_text, create_event, delete_event, list_upcoming_events_text,
+)
 from services.email_service import get_unread_emails_text, send_email
 from services.stock_service import (
     get_stock_price_text,
@@ -41,10 +43,10 @@ def start_new_chat():
     global chat_session
     
     mes_outils = [
-        get_events, 
+        get_events_text, 
         create_event, 
         delete_event, 
-        list_upcoming_events,
+        list_upcoming_events_text,
         get_unread_emails_text, 
         send_email,
         # ----- Bourse -----

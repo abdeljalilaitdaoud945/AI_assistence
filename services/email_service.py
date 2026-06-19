@@ -111,6 +111,19 @@ def get_unread_emails_text(limit: int = 5) -> str:
     return texte_ia
 
 def send_email(destinataire: str, sujet: str, contenu: str) -> str:
+    # ----- Garde-fou Mode Démo (silencieux si module absent) -----
+    try:
+        from services.demo_mode import is_demo_mode, log_demo_action
+        if is_demo_mode():
+            msg = log_demo_action("send_email", {
+                "destinataire": destinataire, "sujet": sujet,
+                "contenu_preview": (contenu or "")[:200],
+            })
+            log_action("EMAIL_DEMO", f"[DÉMO] envoi simulé à {destinataire}")
+            return msg
+    except ImportError:
+        pass
+    # -------------------------------
     try:
         creds = get_credentials()
         service = build('gmail', 'v1', credentials=creds)
@@ -154,6 +167,20 @@ def get_email_full(message_id: str) -> dict:
         }
 
 def send_html_email(destinataire: str, sujet: str, html_body: str) -> str:
+    # ----- Garde-fou Mode Démo (silencieux si module absent) -----
+    try:
+        from services.demo_mode import is_demo_mode, log_demo_action
+        if is_demo_mode():
+            msg = log_demo_action("send_email", {
+                "destinataire": destinataire, "sujet": sujet,
+                "type": "HTML (PV)",
+                "html_preview": (html_body or "")[:300],
+            })
+            log_action("EMAIL_DEMO_HTML", f"[DÉMO] envoi HTML simulé à {destinataire}")
+            return msg
+    except ImportError:
+        pass
+    # -------------------------------
     try:
         creds = get_credentials()
         service = build('gmail', 'v1', credentials=creds)

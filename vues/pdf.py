@@ -653,6 +653,41 @@ def build(page: ft.Page) -> ft.View:
     # =====================================================
     # Validation -> Calendrier
     # =====================================================
+    def _normalize_date(s):
+        """Convertit diverses formes de dates en YYYY-MM-DD, ou None si impossible.
+        
+        Gemini renvoie parfois '15 juin 2026', '15/06/2026', etc. au lieu du
+        format ISO attendu par l'API Google Calendar.
+        """
+        if not s:
+            return None
+        s = str(s).strip()
+        # Déjà au bon format ?
+        import re
+        if re.match(r"^\d{4}-\d{2}-\d{2}$", s):
+            return s
+        # Format DD/MM/YYYY ou DD-MM-YYYY
+        m = re.match(r"^(\d{1,2})[/\-\.](\d{1,2})[/\-\.](\d{2,4})$", s)
+        if m:
+            d, mo, y = m.groups()
+            if len(y) == 2:
+                y = "20" + y
+            return f"{int(y):04d}-{int(mo):02d}-{int(d):02d}"
+        # Format texte français "15 juin 2026"
+        mois = {
+            "janvier": 1, "février": 2, "fevrier": 2, "mars": 3, "avril": 4,
+            "mai": 5, "juin": 6, "juillet": 7, "août": 8, "aout": 8,
+            "septembre": 9, "octobre": 10, "novembre": 11, "décembre": 12,
+            "decembre": 12,
+        }
+        m = re.match(r"^(\d{1,2})\s+([a-zéû]+)\s+(\d{4})$", s.lower())
+        if m:
+            d, mo_name, y = m.groups()
+            mo = mois.get(mo_name)
+            if mo:
+                return f"{int(y):04d}-{mo:02d}-{int(d):02d}"
+        return None
+
     def on_validate_all(e=None):
         entry = state.get("current_entry")
         if not entry: return
@@ -670,11 +705,17 @@ def build(page: ft.Page) -> ft.View:
                 cb = state["checkboxes"].get(("ev", i))
                 if not cb or not cb.value: continue
                 title = ev.get("titre") or "Événement"
-                date = ev.get("date")
+                raw_date = ev.get("date")
+                date = _normalize_date(raw_date)
                 hs = ev.get("heure_debut") or "09:00"
                 he = ev.get("heure_fin") or _add_one_hour(hs)
+                # Normaliser aussi les heures (HH:MM)
+                if hs and len(hs) == 4 and ":" in hs:
+                    hs = "0" + hs  # "9:00" -> "09:00"
+                if he and len(he) == 4 and ":" in he:
+                    he = "0" + he
                 if not date:
-                    errors.append(f"{title} : pas de date")
+                    errors.append(f"{title} : date invalide '{raw_date}'")
                     continue
                 try:
                     create_event(title, date, hs, he)
@@ -686,9 +727,10 @@ def build(page: ft.Page) -> ft.View:
                 cb = state["checkboxes"].get(("ta", i))
                 if not cb or not cb.value: continue
                 title = "📌 " + (t.get("titre") or "Tâche")
-                deadline = t.get("deadline")
+                raw_deadline = t.get("deadline")
+                deadline = _normalize_date(raw_deadline)
                 if not deadline:
-                    errors.append(f"{title} : pas de deadline (ignoré)")
+                    errors.append(f"{title} : deadline invalide '{raw_deadline}'")
                     continue
                 try:
                     create_event(title, deadline, "09:00", "10:00")
@@ -698,10 +740,36 @@ def build(page: ft.Page) -> ft.View:
 
             status_text.value = ""
             main_loading.visible = False
-            msg = f"✅ {added} ajouté(s) au calendrier"
+            
+            # Message principal
             if errors:
-                msg += f" · {len(errors)} non ajouté(s)"
-            page.show_dialog(ft.SnackBar(ft.Text(msg), duration=3000))
+                # On affiche un dialogue détaillé pour pouvoir débugger
+                err_lines = [ft.Text(f"• {e}", color=C.text, size=FONT.small,
+                                     selectable=True) for e in errors]
+                detail_dialog = ft.AlertDialog(
+                    modal=False, bgcolor=C.bg_elevated,
+                    title=ft.Text(
+                        f"✅ {added} ajouté(s)   ·   ⚠️ {len(errors)} non ajouté(s)",
+                        color=C.text, weight=ft.FontWeight.W_700,
+                        size=FONT.h3),
+                    content=ft.Container(
+                        width=420,
+                        content=ft.Column(spacing=6, scroll=ft.ScrollMode.AUTO,
+                                          controls=[
+                            ft.Text("Détail des erreurs :",
+                                    color=C.text_muted, size=FONT.small,
+                                    weight=ft.FontWeight.W_600),
+                            *err_lines,
+                        ]),
+                    ),
+                    actions=[ft.TextButton(
+                        "OK", on_click=lambda _e: page.pop_dialog())],
+                )
+                page.show_dialog(detail_dialog)
+            else:
+                page.show_dialog(ft.SnackBar(
+                    ft.Text(f"✅ {added} ajouté(s) au calendrier"),
+                    duration=3000))
             page.update()
 
         threading.Thread(target=work, daemon=True).start()

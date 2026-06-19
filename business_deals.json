@@ -1,0 +1,62 @@
+[
+  {
+    "id": "DEAL-001",
+    "client": "TechCorp",
+    "titre": "Extension Kubernetes — Migration Cloud",
+    "montant": 380000,
+    "stage": "negociation",
+    "notes": "Devis envoyé le 20/06. Attente retour client sous 5 jours ouvrés.",
+    "created_at": "2026-06-13",
+    "updated_at": "2026-06-13"
+  },
+  {
+    "id": "DEAL-002",
+    "client": "MegaBank",
+    "titre": "Renouvellement Audit Sécurité annuel",
+    "montant": 250000,
+    "stage": "offre_envoyee",
+    "notes": "Premier draft envoyé. Le client a demandé un comparatif avec 2 concurrents.",
+    "created_at": "2026-05-28",
+    "updated_at": "2026-06-10"
+  },
+  {
+    "id": "DEAL-003",
+    "client": "AutoMaroc",
+    "titre": "Avenant scope ERP (modules RH + Stocks)",
+    "montant": 180000,
+    "stage": "relance",
+    "notes": "Première relance le 05/06. Le DSI semble réceptif mais attend validation du COMEX.",
+    "created_at": "2026-05-15",
+    "updated_at": "2026-06-05"
+  },
+  {
+    "id": "DEAL-004",
+    "client": "Groupe ONA",
+    "titre": "Refonte intranet collaboratif",
+    "montant": 420000,
+    "stage": "demande",
+    "notes": "Demande de proposition reçue le 12/06. RDV prévu le 18/06 pour cadrage.",
+    "created_at": "2026-06-12",
+    "updated_at": "2026-06-12"
+  },
+  {
+    "id": "DEAL-005",
+    "client": "Ministère de la Santé",
+    "titre": "Plateforme de télé-suivi patients",
+    "montant": 750000,
+    "stage": "negociation",
+    "notes": "Négo finale sur les conditions de SLA. Différence de 8% à combler.",
+    "created_at": "2026-04-20",
+    "updated_at": "2026-06-08"
+  },
+  {
+    "id": "DEAL-006",
+    "client": "Startup FinPay",
+    "titre": "Conseil architecture micro-services",
+    "montant": 95000,
+    "stage": "decision",
+    "notes": "✅ Gagné — démarrage le 1er juillet 2026. À transformer en projet.",
+    "created_at": "2026-05-01",
+    "updated_at": "2026-06-14"
+  }
+]

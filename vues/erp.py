@@ -9,7 +9,9 @@ import flet as ft
 from vues import theme as T
 from vues.theme import C, FONT
 from vues.navbar import build_navbar, nav_index_for
-from services.erp_service import get_erp_data, generate_erp_recommendations
+from services.erp_service import (
+    get_erp_data, generate_erp_recommendations, get_data_source,
+)
 
 def build(page: ft.Page) -> ft.View:
 
@@ -270,7 +272,35 @@ def build(page: ft.Page) -> ft.View:
                     )
                 )
 
+            # Badge source des données (LIVE = lu depuis erp_data.xlsx, MOCK = simulé)
+            src = data.get("_source", "?")
+            is_live = src.startswith("LIVE")
+            source_badge = ft.Container(
+                padding=ft.Padding(left=10, top=4, right=10, bottom=4),
+                border_radius=999,
+                bgcolor=ft.Colors.with_opacity(
+                    0.15, C.success if is_live else C.warning),
+                border=ft.Border(
+                    top=ft.BorderSide(1, C.success if is_live else C.warning),
+                    bottom=ft.BorderSide(1, C.success if is_live else C.warning),
+                    left=ft.BorderSide(1, C.success if is_live else C.warning),
+                    right=ft.BorderSide(1, C.success if is_live else C.warning),
+                ),
+                content=ft.Row(spacing=6, tight=True, controls=[
+                    ft.Icon(
+                        ft.Icons.CIRCLE if is_live else ft.Icons.WARNING_AMBER_ROUNDED,
+                        size=10,
+                        color=C.success if is_live else C.warning),
+                    ft.Text(
+                        f"Données : {src}",
+                        color=C.success if is_live else C.warning,
+                        size=FONT.micro,
+                        weight=ft.FontWeight.W_700),
+                ]),
+            )
+
             content_col.controls = [
+                ft.Row([source_badge], alignment=ft.MainAxisAlignment.END),
                 impact_banner,
                 ft.Container(height=4),
                 ft.Text("Indicateurs Financiers",
@@ -375,8 +405,10 @@ def build(page: ft.Page) -> ft.View:
             try:
                 reco = generate_erp_recommendations()
                 parsed = _parse_strategic_note(reco)
-                ai_analysis_card.content = T.card(
+                ai_analysis_card.content = ft.Container(
                     padding=18,
+                    border_radius=20,
+                    bgcolor=C.bg_elevated,
                     border=ft.Border(
                         left=ft.BorderSide(3, C.accent),
                         top=ft.BorderSide(1, C.border),
